@@ -47,5 +47,5 @@ public class AppDataBase {
         } catch (Exception e){
             JOptionPane.showMessageDialog(null, "Error al cerrar sesion con la bd: "+e.getMessage());
         }
-    }
+    }   
 }
