@@ -27,6 +27,9 @@ public class Producto {
     @Column(name = "precio", nullable = false)
     private Double precio;
 
+    @Column(name = "cantidad", nullable = false)
+    private int cantidad;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "estado", nullable = false)
     private EstadoProducto estado;
