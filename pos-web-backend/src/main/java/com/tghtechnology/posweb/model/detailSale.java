@@ -3,11 +3,11 @@ package com.tghtechnology.posweb.model;
 import lombok.Data;
 
 @Data
-public class Producto {
+public class detailSale {
+    private int idDetail;
+    private int idSale;
     private int idProduct;
-    private String name;
-    private String category;
     private int amount;
     private double price;
-    private String description;
+    private double subtotal;
 }
