@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.annotation.Id;
 
 @Entity
 @Getter
@@ -28,7 +27,7 @@ public class Usuario {
     @Column(name = "correo", nullable = false, length = 100, unique = true)
     private String correo;
 
-    @Column(name = "contraseña", nullable = false, length = 100)
+    @Column(name = "clave", nullable = false, length = 100)
     private String pass;
 
     @ManyToOne
@@ -39,7 +38,5 @@ public class Usuario {
     @Column(name = "estado", nullable = true)
     private EstadoUsuario estado;
 
-    public enum EstadoUsuario {
-        ACTIVO, INACTIVO
-    }
+
 }

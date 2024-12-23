@@ -38,7 +38,4 @@ public class Producto {
     @JoinColumn(name = "id_categoria", referencedColumnName = "id_categoria")
     private Categoria categoria;
 
-    public enum EstadoProducto {
-        DISPONIBLE, NO_DISPONIBLE
-    }
 }
