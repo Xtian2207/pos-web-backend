@@ -1,21 +1,11 @@
 package com.tghtechnology.posweb.service;
 
 import com.tghtechnology.posweb.data.entities.Rol;
-import com.tghtechnology.posweb.data.repository.RolRepository;
-import org.apache.catalina.User;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.SecurityProperties;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
-public class RolService {
+public interface RolService {
 
-    @Autowired
-    private RolRepository rolRepository;
+    List<Rol> getAllRol();
 
-    public List<Rol> getAllRol(){
-        return rolRepository.findAll();
-    }
 }

@@ -17,7 +17,7 @@ public interface VentaRepository extends JpaRepository<Venta, Long> {
 
 
     // Metodo para obtener ventas por ID de usuario (empleado o cajero)
-    List<Venta> findByUsuarioId(Long usuarioId);
+    List<Venta> findByUsuario_IdUsuario(Long usuarioId);
 
     // Metodo para obtener ventas por rango de fechas
     List<Venta> findVentasByFechaVentaBetween(Date fechaInicio, Date fechaFin);
