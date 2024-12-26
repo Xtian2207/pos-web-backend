@@ -60,20 +60,24 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     @Override
-    public void cambiarEstadoUsuario(Long id, String estado){
-        if(usuarioRepository.existsById(id)){
-            Usuario user =  obtenerUsuarioId(id);
+    public void cambiarEstadoUsuario(Long id, String estado) {
+        if (usuarioRepository.existsById(id)) {  
+            Optional<Usuario> optionalUser = usuarioRepository.findById(id);
 
-            if(user.getEstado() == EstadoUsuario.ACTIVO){
-                user.setEstado(EstadoUsuario.INACTIVO);
-            } else if (user.getEstado() == EstadoUsuario.INACTIVO){
-                user.setEstado(EstadoUsuario.ACTIVO);
+            if (optionalUser.isPresent()) {
+                Usuario user = optionalUser.get();
+
+
+                if (user.getEstado() == EstadoUsuario.ACTIVO) {
+                    user.setEstado(EstadoUsuario.INACTIVO);
+                } else if (user.getEstado() == EstadoUsuario.INACTIVO) {
+                    user.setEstado(EstadoUsuario.ACTIVO);
+                }
+                usuarioRepository.save(user);
             }
-
-            usuarioRepository.save(user);
-
         }
     }
+
 
     @Override
     public void cambiarConstrasena(Long id, String pass){
