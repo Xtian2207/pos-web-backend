@@ -8,7 +8,8 @@ import java.util.Optional;
 
 public interface ProductoService {
 
-    Producto registrarProducto(Producto producto);
+    Producto registrarProducto(Long categoriaId, Producto producto) throws Exception;
+
     List<Producto> listarProductos();
 
     Optional<Producto> buscarPorNombre(String nombre);
