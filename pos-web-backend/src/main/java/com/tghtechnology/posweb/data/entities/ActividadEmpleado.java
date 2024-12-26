@@ -27,4 +27,6 @@ public class ActividadEmpleado {
     @ManyToOne
     @JoinColumn(name = "id_venta", referencedColumnName = "id_venta", nullable = false)
     private Venta venta;
+
+
 }
