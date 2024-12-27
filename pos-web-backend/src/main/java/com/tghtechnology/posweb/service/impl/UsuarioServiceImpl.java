@@ -17,15 +17,14 @@ public class UsuarioServiceImpl implements UsuarioService {
     private UsuarioRepository usuarioRepository;
 
     @Override
-    public Optional<List<Usuario>> obtenerUsuarios(){
-        List<Usuario> roles = usuarioRepository.findAll();            
-        if (!roles.isEmpty()) {
-            return Optional.of(roles);
-        }else {
-            return Optional.empty();
-        }
+    public List<Usuario> obtenerUsuarios(){
+        return usuarioRepository.findAll();
     }
 
+    @Override
+    public boolean existeUsuario (Long id){
+        return usuarioRepository.existsById(id);
+    }
 
     @Override
     public void ingresarUsuario(Usuario user){
