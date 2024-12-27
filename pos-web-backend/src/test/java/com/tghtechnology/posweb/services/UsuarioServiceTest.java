@@ -1,9 +1,9 @@
-package com.tghtechnology.posweb;
+package com.tghtechnology.posweb.services;
 
-import com.tghtechnology.posweb.service.impl.UsuarioServiceImpl;
 import com.tghtechnology.posweb.data.entities.EstadoUsuario;
 import com.tghtechnology.posweb.data.entities.Usuario;
 import com.tghtechnology.posweb.data.repository.UsuarioRepository;
+import com.tghtechnology.posweb.service.impl.UsuarioServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -12,11 +12,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class UsuarioServiceImplTest {
+class UsuarioServiceTest {
 
     @Mock
     private UsuarioRepository usuarioRepository;
