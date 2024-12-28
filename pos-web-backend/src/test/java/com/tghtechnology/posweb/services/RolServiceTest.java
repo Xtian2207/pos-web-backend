@@ -11,10 +11,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -33,11 +32,11 @@ class RolServiceTest {
         when(rolRepository.findAll()).thenReturn(rolesMock);
 
         // Ejecución
-        Optional<List<Rol>> roles = rolService.obtenerRoles();
+        List<Rol> roles = rolService.obtenerRoles();
 
         // Verificación
-        assertTrue(roles.isPresent());
-        assertEquals(2, roles.get().size());
+        assertNotNull(roles);
+        assertEquals(2, roles.size());
         verify(rolRepository, times(1)).findAll();
     }
 

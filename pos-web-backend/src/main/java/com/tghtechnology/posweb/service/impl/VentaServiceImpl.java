@@ -1,9 +1,11 @@
 package com.tghtechnology.posweb.service.impl;
 
 import com.tghtechnology.posweb.data.entities.DetalleVenta;
+import com.tghtechnology.posweb.data.entities.Producto;
 import com.tghtechnology.posweb.data.entities.Usuario;
 import com.tghtechnology.posweb.data.entities.Venta;
 import com.tghtechnology.posweb.data.repository.DetalleVentaRepository;
+import com.tghtechnology.posweb.data.repository.ProductoRepository;
 import com.tghtechnology.posweb.data.repository.UsuarioRepository;
 import com.tghtechnology.posweb.data.repository.VentaRepository;
 import com.tghtechnology.posweb.service.VentaService;
@@ -28,6 +30,9 @@ public class VentaServiceImpl implements VentaService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
+    @Autowired
+    private ProductoRepository productoRepository;
+
     // Registrar venta
     @Override
     public Venta registrarVenta(Venta venta) {
@@ -35,12 +40,11 @@ public class VentaServiceImpl implements VentaService {
             throw new IllegalArgumentException("La venta debe tener al menos un producto");
         }
 
-        // Validar existencia del usuario
+        // Validar existencia del usuario por ID
         if (venta.getUsuario() == null || venta.getUsuario().getIdUsuario() == null) {
             throw new IllegalArgumentException("El usuario que realiza la venta no es válido");
         }
 
-        // Si el usuario no está asociado correctamente, buscamos al usuario y lo asignamos
         Optional<Usuario> usuarioExistente = usuarioRepository.findById(venta.getUsuario().getIdUsuario());
         if (!usuarioExistente.isPresent()) {
             throw new IllegalArgumentException("Usuario no encontrado");
@@ -49,11 +53,21 @@ public class VentaServiceImpl implements VentaService {
         // Asignamos el usuario a la venta
         venta.setUsuario(usuarioExistente.get());
 
-        // Validar que los detalles tengan productos válidos
+        // Validar y asignar productos en los detalles por sus IDs
         venta.getDetalles().forEach(detalle -> {
             if (detalle.getProducto() == null || detalle.getProducto().getIdProducto() == null) {
                 throw new IllegalArgumentException("Producto inválido en detalle de venta");
             }
+
+            Optional<Producto> productoExistente = productoRepository.findById(detalle.getProducto().getIdProducto());
+            if (!productoExistente.isPresent()) {
+                throw new IllegalArgumentException(
+                        "Producto no encontrado con ID: " + detalle.getProducto().getIdProducto());
+            }
+
+            // Asignamos el producto al detalle
+            detalle.setProducto(productoExistente.get());
+            detalle.setVenta(venta);
         });
 
         // Calcular el total de la venta
@@ -65,10 +79,7 @@ public class VentaServiceImpl implements VentaService {
         venta.setFechaVenta(LocalDate.now());
         venta.setHoraVenta(LocalTime.now());
 
-        // Asociamos los detalles a la venta
-        venta.getDetalles().forEach(detalle -> detalle.setVenta(venta));
-
-        // Guardamos la venta y sus detalles
+        // Guardar la venta y sus detalles
         Venta ventaGuardada = ventaRepository.save(venta);
         detalleVentaRepository.saveAll(venta.getDetalles());
 
@@ -94,9 +105,10 @@ public class VentaServiceImpl implements VentaService {
         if (ventaExistente.isPresent()) {
             Venta venta = ventaExistente.get();
 
-            // Si el usuario no ha sido asignado, lo actualizamos
+            // Si el usuario ha sido asignado, lo actualizamos
             if (ventaActualizada.getUsuario() != null && ventaActualizada.getUsuario().getIdUsuario() != null) {
-                Optional<Usuario> usuarioExistente = usuarioRepository.findById(ventaActualizada.getUsuario().getIdUsuario());
+                Optional<Usuario> usuarioExistente = usuarioRepository
+                        .findById(ventaActualizada.getUsuario().getIdUsuario());
                 if (usuarioExistente.isPresent()) {
                     venta.setUsuario(usuarioExistente.get());
                 } else {
@@ -104,10 +116,18 @@ public class VentaServiceImpl implements VentaService {
                 }
             }
 
-            // Actualizamos los detalles de la venta
+            // Actualizamos los detalles de la venta por IDs
             if (ventaActualizada.getDetalles() != null && !ventaActualizada.getDetalles().isEmpty()) {
                 for (DetalleVenta detalleVenta : ventaActualizada.getDetalles()) {
-                    detalleVenta.setVenta(venta);
+                    Optional<Producto> productoExistente = productoRepository
+                            .findById(detalleVenta.getProducto().getIdProducto());
+                    if (productoExistente.isPresent()) {
+                        detalleVenta.setProducto(productoExistente.get());
+                        detalleVenta.setVenta(venta);
+                    } else {
+                        throw new IllegalArgumentException(
+                                "Producto no encontrado con ID: " + detalleVenta.getProducto().getIdProducto());
+                    }
                 }
                 detalleVentaRepository.saveAll(ventaActualizada.getDetalles());
             }
@@ -133,6 +153,7 @@ public class VentaServiceImpl implements VentaService {
             throw new IllegalArgumentException("Venta no encontrada con ID: " + idVenta);
         }
     }
+
 
     // Obtener ventas por usuario
     @Override

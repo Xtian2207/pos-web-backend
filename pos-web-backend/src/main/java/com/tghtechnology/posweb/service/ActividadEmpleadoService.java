@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface ActividadEmpleadoService {
 
-    ActividadEmpleado registrarActividad(ActividadEmpleado actividadEmpleado);
+    ActividadEmpleado registrarActividad(Long idEmpleado, Long idVenta);
 
     List<ActividadEmpleado> consultarActividadesPorEmpleado(Long idEmpleado);
 
@@ -14,6 +14,6 @@ public interface ActividadEmpleadoService {
 
     boolean eliminarActividad(Long idActividad);
 
-    ActividadEmpleado actualizarActividad(Long idActividad, ActividadEmpleado actividadActualizada);
+    ActividadEmpleado actualizarActividad(Long idActividad, Long idEmpleado, Long idVenta);
 
 }

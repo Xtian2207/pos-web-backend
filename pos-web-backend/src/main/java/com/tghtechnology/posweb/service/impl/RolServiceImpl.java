@@ -17,27 +17,27 @@ public class RolServiceImpl implements RolService {
     private RolRepository rolRepository;
         
     @Override
-    public Optional<List<Rol>> obtenerRoles(){
-        List<Rol> roles = rolRepository.findAll();            
-        if (!roles.isEmpty()) {
-            return Optional.of(roles);
-        }else {
-            return Optional.empty();
-        }
+    public List<Rol> obtenerRoles() {
+        return rolRepository.findAll();
     }
 
     @Override
     public void ingresarRol(Rol rol){
-        Long idRol = rol.getIdRol();
-        if(idRol!=0){
-            rolRepository.save(rol);
+        
+        if(rolRepository.existsByNombreRol(rol.getNombreRol())){
+            throw new IllegalArgumentException("El rol ya existe");
         }
+
+        rolRepository.save(rol);
+
     }
 
     @Override
     public void eliminarRol(Long id){
         if (rolRepository.existsById(id)) {
             rolRepository.deleteById(id);
+        }else{
+            throw new IllegalArgumentException("El rol con ID " + id + " no existe");
         }
     }
 
@@ -51,12 +51,15 @@ public class RolServiceImpl implements RolService {
         }
     }
 
-    @Override
-    public void editarRol(Rol rol){
-        if (rolRepository.existsById(rol.getIdRol())) {
-            rolRepository.save(rol);
+    public Rol editarRol(Long id, Rol rolActualizado) {
+        // Verificar si el rol existe
+        if (!rolRepository.existsById(id)) {
+            throw new IllegalArgumentException("El rol con ID " + id + " no existe");
         }
+        Rol rolExistente = rolRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("El rol con ID " + id + " no existe"));
+        rolExistente.setNombreRol(rolActualizado.getNombreRol());
+        return rolRepository.save(rolExistente);
     }
-
-    
 }
+
+

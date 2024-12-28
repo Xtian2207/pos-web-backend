@@ -1,4 +1,4 @@
-package com.tghtechnology.posweb.controller;
+package com.tghtechnology.posweb.controllers;
 
 import com.tghtechnology.posweb.data.entities.EstadoProducto;
 import com.tghtechnology.posweb.data.entities.Producto;

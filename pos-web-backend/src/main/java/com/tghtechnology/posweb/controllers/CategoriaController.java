@@ -1,4 +1,4 @@
-package com.tghtechnology.posweb.controller;
+package com.tghtechnology.posweb.controllers;
 
 import com.tghtechnology.posweb.data.entities.Categoria;
 import com.tghtechnology.posweb.service.CategoriaService;

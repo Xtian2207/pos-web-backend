@@ -14,6 +14,7 @@ import org.mockito.*;
 import java.util.List;
 import java.util.Optional;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -31,17 +32,21 @@ public class ActividadEmpleadoServiceTest {
     @InjectMocks
     private ActividadEmpleadoServiceImpl actividadEmpleadoService;
 
-    private ActividadEmpleado actividadEmpleado;
     private Usuario empleado;
     private Venta venta;
+    private ActividadEmpleado actividadEmpleado;
 
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
+
+        // Crear instancias de los objetos para las pruebas
         empleado = new Usuario();
         empleado.setIdUsuario(1L);
+
         venta = new Venta();
         venta.setIdVenta(1L);
+
         actividadEmpleado = new ActividadEmpleado();
         actividadEmpleado.setEmpleado(empleado);
         actividadEmpleado.setVenta(venta);
@@ -52,14 +57,17 @@ public class ActividadEmpleadoServiceTest {
         // Arrange
         when(usuarioRepository.findById(empleado.getIdUsuario())).thenReturn(Optional.of(empleado));
         when(ventaRepository.findById(venta.getIdVenta())).thenReturn(Optional.of(venta));
-        when(actividadEmpleadoRepository.save(actividadEmpleado)).thenReturn(actividadEmpleado);
+        when(actividadEmpleadoRepository.save(any(ActividadEmpleado.class))).thenReturn(actividadEmpleado);
 
         // Act
-        ActividadEmpleado resultado = actividadEmpleadoService.registrarActividad(actividadEmpleado);
+        ActividadEmpleado resultado = actividadEmpleadoService.registrarActividad(empleado.getIdUsuario(),
+                venta.getIdVenta());
 
         // Assert
-        assertNotNull(resultado);
-        verify(actividadEmpleadoRepository, times(1)).save(actividadEmpleado);
+        assertNotNull(resultado, "El resultado no debe ser null");
+        assertEquals(empleado, resultado.getEmpleado());
+        assertEquals(venta, resultado.getVenta());
+        verify(actividadEmpleadoRepository, times(1)).save(any(ActividadEmpleado.class));
     }
 
     @Test
@@ -69,9 +77,59 @@ public class ActividadEmpleadoServiceTest {
 
         // Act & Assert
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
-            actividadEmpleadoService.registrarActividad(actividadEmpleado);
+            actividadEmpleadoService.registrarActividad(empleado.getIdUsuario(), venta.getIdVenta());
         });
         assertEquals("Empleado no encontrado", thrown.getMessage());
+    }
+
+    @Test
+    public void testRegistrarActividadVentaNoExistente() {
+        // Arrange
+        when(usuarioRepository.findById(empleado.getIdUsuario())).thenReturn(Optional.of(empleado));
+        when(ventaRepository.findById(venta.getIdVenta())).thenReturn(Optional.empty());
+
+        // Act & Assert
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
+            actividadEmpleadoService.registrarActividad(empleado.getIdUsuario(), venta.getIdVenta());
+        });
+        assertEquals("Venta no encontrada", thrown.getMessage());
+    }
+
+    @Test
+    public void testActualizarActividad() {
+        // Arrange
+        Long idActividad = 1L;
+        Long idEmpleadoNuevo = 2L;
+        Long idVentaNueva = 2L;
+        ActividadEmpleado nuevaActividad = new ActividadEmpleado();
+        nuevaActividad.setEmpleado(new Usuario());
+        nuevaActividad.setVenta(new Venta());
+
+        when(actividadEmpleadoRepository.findById(idActividad)).thenReturn(Optional.of(actividadEmpleado));
+        when(usuarioRepository.findById(idEmpleadoNuevo)).thenReturn(Optional.of(new Usuario()));
+        when(ventaRepository.findById(idVentaNueva)).thenReturn(Optional.of(new Venta()));
+        when(actividadEmpleadoRepository.save(any(ActividadEmpleado.class))).thenReturn(actividadEmpleado);
+
+        // Act
+        ActividadEmpleado resultado = actividadEmpleadoService.actualizarActividad(idActividad, idEmpleadoNuevo,
+                idVentaNueva);
+
+        // Assert
+        assertNotNull(resultado);
+        verify(actividadEmpleadoRepository, times(1)).save(any(ActividadEmpleado.class));
+    }
+
+    @Test
+    public void testActualizarActividadNoExistente() {
+        // Arrange
+        Long idActividad = 1L;
+        when(actividadEmpleadoRepository.findById(idActividad)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
+            actividadEmpleadoService.actualizarActividad(idActividad, 2L, 2L);
+        });
+        assertEquals("Actividad no encontrada", thrown.getMessage());
     }
 
     @Test
@@ -81,7 +139,8 @@ public class ActividadEmpleadoServiceTest {
                 .thenReturn(List.of(actividadEmpleado));
 
         // Act
-        var actividades = actividadEmpleadoService.consultarActividadesPorEmpleado(empleado.getIdUsuario());
+        List<ActividadEmpleado> actividades = actividadEmpleadoService
+                .consultarActividadesPorEmpleado(empleado.getIdUsuario());
 
         // Assert
         assertNotNull(actividades);
@@ -92,7 +151,8 @@ public class ActividadEmpleadoServiceTest {
     @Test
     public void testEliminarActividad() {
         // Arrange
-        when(actividadEmpleadoRepository.findById(actividadEmpleado.getIdActividad())).thenReturn(Optional.of(actividadEmpleado));
+        when(actividadEmpleadoRepository.findById(actividadEmpleado.getIdActividad()))
+                .thenReturn(Optional.of(actividadEmpleado));
 
         // Act
         boolean resultado = actividadEmpleadoService.eliminarActividad(actividadEmpleado.getIdActividad());
@@ -112,36 +172,5 @@ public class ActividadEmpleadoServiceTest {
 
         // Assert
         assertFalse(resultado);
-    }
-
-    @Test
-    public void testActualizarActividad() {
-        // Arrange
-        ActividadEmpleado nuevaActividad = new ActividadEmpleado();
-        nuevaActividad.setEmpleado(empleado);
-        nuevaActividad.setVenta(venta);
-
-        when(actividadEmpleadoRepository.findById(actividadEmpleado.getIdActividad())).thenReturn(Optional.of(actividadEmpleado));
-        when(actividadEmpleadoRepository.save(actividadEmpleado)).thenReturn(actividadEmpleado);
-
-        // Act
-        ActividadEmpleado resultado = actividadEmpleadoService.actualizarActividad(actividadEmpleado.getIdActividad(), nuevaActividad);
-
-        // Assert
-        assertNotNull(resultado);
-        assertEquals(empleado, resultado.getEmpleado());
-        assertEquals(venta, resultado.getVenta());
-    }
-
-    @Test
-    public void testActualizarActividadNoExistente() {
-        // Arrange
-        when(actividadEmpleadoRepository.findById(actividadEmpleado.getIdActividad())).thenReturn(Optional.empty());
-
-        // Act & Assert
-        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
-            actividadEmpleadoService.actualizarActividad(actividadEmpleado.getIdActividad(), actividadEmpleado);
-        });
-        assertEquals("Actividad no encontrada", thrown.getMessage());
     }
 }
