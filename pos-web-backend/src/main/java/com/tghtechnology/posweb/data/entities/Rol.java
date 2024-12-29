@@ -13,6 +13,7 @@ import jakarta.validation.constraints.NotBlank;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+
 public class Rol {
 
     @Id

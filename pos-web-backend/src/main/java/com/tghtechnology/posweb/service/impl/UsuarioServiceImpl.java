@@ -27,11 +27,17 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     @Override
-    public void ingresarUsuario(Usuario user){
-        if(!usuarioRepository.existsById(user.getIdUsuario())){
-            usuarioRepository.save(user);
-        }else{System.out.println("Ya existe el usuario");}
+    public void ingresarUsuario(Usuario user) {
+        if (user == null) {
+            throw new IllegalArgumentException("El usuario no puede ser nulo");
+        }
+        if (usuarioRepository.findByCorreo(user.getCorreo()).isPresent()) {
+            throw new IllegalStateException("Ya existe un usuario con el correo proporcionado");
+        }
+        usuarioRepository.save(user);
     }
+
+
 
     @Override
     public void actualizarUsuario(Usuario user){
