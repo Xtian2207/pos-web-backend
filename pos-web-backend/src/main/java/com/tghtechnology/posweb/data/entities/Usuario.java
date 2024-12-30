@@ -12,6 +12,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+
 public class Usuario {
 
     @Id
@@ -28,7 +29,7 @@ public class Usuario {
     @Column(name = "correo", nullable = false, length = 100, unique = true)
     private String correo;
 
-    @Column(name = "clave", nullable = false, length = 100)
+    @Column(name = "contraseña", nullable = false, length = 100)
     private String pass;
 
     @ManyToOne

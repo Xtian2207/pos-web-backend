@@ -12,6 +12,7 @@ import lombok.Setter;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+
 public class DetalleVenta {
 
     @Id
