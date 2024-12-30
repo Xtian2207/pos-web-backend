@@ -17,8 +17,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import com.tghtechnology.posweb.data.entities.Rol;
 import com.tghtechnology.posweb.service.impl.RolServiceImpl;
 
-import jakarta.validation.Valid;
-
 @RestController
 @RequestMapping("/api/roles")
 public class RolController {

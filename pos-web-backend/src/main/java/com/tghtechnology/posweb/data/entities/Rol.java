@@ -18,12 +18,21 @@ public class Rol {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_rol")
+    @Column(name = "id_rol", length = 40)
     private Long idRol;
 
+    
     @NotBlank(message = "El rol no puede estar vacio")
     @Column(name = "nombre_rol", nullable = false, length = 50)
     private String nombreRol;
+
+    @PrePersist
+    @PreUpdate
+    private void normalizarRol(){
+        if(nombreRol !=null){
+            nombreRol = nombreRol.toLowerCase();
+        }
+    }
 
 }
 

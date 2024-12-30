@@ -51,6 +51,7 @@ public class RolServiceImpl implements RolService {
         }
     }
 
+    @Override
     public Rol editarRol(Long id, Rol rolActualizado) {
         // Verificar si el rol existe
         if (!rolRepository.existsById(id)) {
@@ -60,6 +61,12 @@ public class RolServiceImpl implements RolService {
         rolExistente.setNombreRol(rolActualizado.getNombreRol());
         return rolRepository.save(rolExistente);
     }
+
+    @Override
+    public Boolean existeRol(Long idRol){
+        return rolRepository.existsById(idRol);
+    }
+
 }
 
 

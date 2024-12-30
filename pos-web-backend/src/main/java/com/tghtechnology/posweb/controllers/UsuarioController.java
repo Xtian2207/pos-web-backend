@@ -1,10 +1,14 @@
 package com.tghtechnology.posweb.controllers;
 
 import java.util.List;
+import java.util.Set;
+
 import com.tghtechnology.posweb.data.entities.EstadoUsuario;
+import com.tghtechnology.posweb.data.entities.Rol;
 import com.tghtechnology.posweb.data.entities.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.tghtechnology.posweb.service.impl.RolServiceImpl;
 import com.tghtechnology.posweb.service.impl.UsuarioServiceImpl;
 
 @RestController
@@ -25,6 +30,9 @@ public class UsuarioController {
 
     @Autowired
     private UsuarioServiceImpl usuarioServiceImpl;
+
+    @Autowired
+    private RolServiceImpl rolServiceImpl;
 
     // lista de usuarios
     @GetMapping
@@ -107,4 +115,50 @@ public class UsuarioController {
         return new ResponseEntity<>("Contraseña actualizada correctamente", HttpStatus.OK);
     }
 
+    // Agregar rol a un usuario
+    @PostMapping("/{id}/roles/{idRol}")
+    ResponseEntity<String> agregarRolUsuario(@PathVariable Long id, @PathVariable Long idRol){
+            try {
+                if(rolServiceImpl.existeRol(idRol) && usuarioServiceImpl.existeUsuario(id)){
+                    usuarioServiceImpl.agregarRol(id, idRol);
+                    return new ResponseEntity<>("Rol agregado correctamente al usuario", HttpStatus.OK);
+                }else{
+                    return new ResponseEntity<>("Uusuario o Rol no existe", HttpStatus.BAD_REQUEST);
+                }
+            } catch (Exception e) {
+                return new ResponseEntity<>("Error al agregar nuevo rol al usuario :"+e.getMessage(), HttpStatus.BAD_REQUEST);
+            }
+    }
+        
+
+    // Eliminar un rol de un usuario
+    @DeleteMapping("/{id}/roles/{idRol}")
+    ResponseEntity<String> eliminarRolUsuario(@PathVariable Long id, @PathVariable Long idRol){
+        try {
+            if(rolServiceImpl.existeRol(idRol) && usuarioServiceImpl.existeUsuario(id)){                    
+                usuarioServiceImpl.eliminarRol(id, idRol);
+                return new ResponseEntity<>("Rol agregado correctamente al usuario", HttpStatus.OK);
+            }else{
+                return new ResponseEntity<>("Uusuario o Rol no existe", HttpStatus.BAD_REQUEST);
+            }
+               
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error al agregar nuevo rol al usuario :"+e.getMessage(), HttpStatus.BAD_REQUEST);            }
+    }
+
+    // Roles de un usuario
+    @GetMapping("/{id}/roles")
+    public ResponseEntity<Set<Rol>> obtenerRolesUsuario(@PathVariable Long id){
+        try {
+            if(usuarioServiceImpl.existeUsuario(id)){                    
+                Set<Rol>roles = usuarioServiceImpl.rolesUsuario(id);
+                return new ResponseEntity<>(roles , HttpStatus.OK);
+            }else{
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
 }

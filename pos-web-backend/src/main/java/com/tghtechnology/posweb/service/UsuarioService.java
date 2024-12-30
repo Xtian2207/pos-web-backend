@@ -1,8 +1,10 @@
 package com.tghtechnology.posweb.service;
 
+import com.tghtechnology.posweb.data.entities.Rol;
 import com.tghtechnology.posweb.data.entities.Usuario;
 
 import java.util.List;
+import java.util.Set;
 
 
 public interface UsuarioService {
@@ -27,4 +29,10 @@ public interface UsuarioService {
 
     boolean existeUsuario(Long id);
 
+    // roles de un usuario
+    Set<Rol> rolesUsuario(Long id);
+
+    void agregarRol(Long id, Long rol);
+
+    void eliminarRol(Long idUsuario, Long idRol);
 }

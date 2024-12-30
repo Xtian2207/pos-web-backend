@@ -1,7 +1,9 @@
 package com.tghtechnology.posweb.service.impl;
 
 import com.tghtechnology.posweb.data.entities.EstadoUsuario;
+import com.tghtechnology.posweb.data.entities.Rol;
 import com.tghtechnology.posweb.data.entities.Usuario;
+import com.tghtechnology.posweb.data.repository.RolRepository;
 import com.tghtechnology.posweb.data.repository.UsuarioRepository;
 import com.tghtechnology.posweb.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,12 +11,16 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class UsuarioServiceImpl implements UsuarioService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private RolRepository rolRepository;
 
     @Override
     public List<Usuario> obtenerUsuarios(){
@@ -82,6 +88,7 @@ public class UsuarioServiceImpl implements UsuarioService {
             }
         }
     }
+    
 
 
     @Override
@@ -95,5 +102,31 @@ public class UsuarioServiceImpl implements UsuarioService {
         }
     }
 
+    @Override
+    public Set<Rol> rolesUsuario(Long id){
+        if (!usuarioRepository.existsById(id)) {
+            return null;
+        }
+        return usuarioRepository.findRolesByUsuarioId(id);
+    }
+
+    @Override
+    public void agregarRol(Long idUsuario, Long id){
+        Usuario usuario = usuarioRepository.findById(idUsuario).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        Rol rol = rolRepository.findById(id).orElseThrow(()->new RuntimeException("Rol no encontrado"));
+
+        usuario.getRoles().add(rol);
+        usuarioRepository.save(usuario);
+
+    }
+    
+    @Override
+    public void eliminarRol(Long idUsuario, Long idRol){
+        Usuario usuario = usuarioRepository.findById(idUsuario).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        Rol rol = rolRepository.findById(idRol).orElseThrow(()->new RuntimeException("Rol no encontrado"));
+
+        usuario.getRoles().remove(rol);
+        usuarioRepository.save(usuario);
+    }
 
 }
