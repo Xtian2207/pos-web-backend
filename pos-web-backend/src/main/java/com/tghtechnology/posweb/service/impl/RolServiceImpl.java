@@ -19,12 +19,15 @@ public class RolServiceImpl implements RolService {
 
     @Autowired
     private RolRepository rolRepository;
-        
+
+    @Autowired
+    private RolMapper rolMapper;
+
     @Override
     public List<RolDto> obtenerRoles() {
         List<Rol> roles = rolRepository.findAll();
         return roles.stream()
-                        .map(RolMapper::toDto)
+                        .map(rolMapper::toDto)
                         .collect(Collectors.toList());
     }
 

@@ -27,12 +27,18 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Autowired
     private RolRepository rolRepository;
 
+    @Autowired
+    private UsuarioMapper usuarioMapper;
+
+    @Autowired
+    private RolMapper rolMapper;
+
     @Override
     public List<UsuarioDto> obtenerUsuarios(){
         
         List<Usuario> usuarios =  usuarioRepository.findAll();
         return usuarios.stream()
-                    .map(UsuarioMapper::toDTO)
+                    .map(usuarioMapper::toDto)
                     .collect(Collectors.toList());
 
     }
@@ -70,7 +76,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         if (usuarioRepository.existsById(id)) {
             Usuario usuario = usuarioRepository.findById(id).orElse(null);
             
-            return UsuarioMapper.toDTO(usuario);
+            return usuarioMapper.toDto(usuario);
         }else{return null;}
     }
 
@@ -121,7 +127,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         Set<Rol> roles = usuarioRepository.findRolesByUsuarioId(id);
 
         return roles.stream()
-                        .map(RolMapper::toDto)
+                        .map(rolMapper::toDto)
                         .collect(Collectors.toSet());
     }
 

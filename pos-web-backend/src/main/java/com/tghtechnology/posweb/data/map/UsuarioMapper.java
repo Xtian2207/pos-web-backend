@@ -8,24 +8,17 @@ import com.tghtechnology.posweb.data.dto.RolDto;
 import com.tghtechnology.posweb.data.dto.UsuarioDto;
 import java.util.stream.Collectors;
 
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+@Component
 public class UsuarioMapper {
-    public static UsuarioDto toDTO(Usuario usuario){
-        
-        if (usuario == null) {
-            return null;
-        }
 
-        Set<RolDto> rolesDto = usuario.getRoles().stream()
-                                .map(rol -> new RolDto(rol.getIdRol(), rol.getNombreRol()))
-                                .collect(Collectors.toSet());
+    @Autowired
+    private ModelMapper modelMapper;
 
-        
-        return new UsuarioDto(
-            usuario.getIdUsuario(),
-            usuario.getNombre()+ " "+ usuario.getApellido(),
-            usuario.getCorreo(),
-            usuario.getEstado() != null ? usuario.getEstado().name() : null,
-            rolesDto
-        );
+    public Usuario toEntity(UsuarioDto usuarioDTO){
+        return modelMapper.map(usuarioDTO, Usuario.class);
     }
 }
