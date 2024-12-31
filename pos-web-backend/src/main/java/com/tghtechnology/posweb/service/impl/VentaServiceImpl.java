@@ -37,26 +37,28 @@ public class VentaServiceImpl implements VentaService {
     @Override
     public Venta registrarVenta(Venta venta) {
         if (venta.getDetalles() == null || venta.getDetalles().isEmpty()) {
-            throw new IllegalArgumentException("La venta debe tener al menos un producto");
+            throw new IllegalArgumentException("La venta debe tener al menos un detalle.");
         }
 
         // Validar existencia del usuario por ID
         if (venta.getUsuario() == null || venta.getUsuario().getIdUsuario() == null) {
-            throw new IllegalArgumentException("El usuario que realiza la venta no es válido");
+            throw new IllegalArgumentException("El usuario que realiza la venta no es válido.");
         }
 
         Optional<Usuario> usuarioExistente = usuarioRepository.findById(venta.getUsuario().getIdUsuario());
         if (!usuarioExistente.isPresent()) {
-            throw new IllegalArgumentException("Usuario no encontrado");
+            throw new IllegalArgumentException("Usuario no encontrado con ID: " + venta.getUsuario().getIdUsuario());
         }
 
-        // Asignamos el usuario a la venta
+        // Asignar el usuario a la venta
         venta.setUsuario(usuarioExistente.get());
 
-        // Validar y asignar productos en los detalles por sus IDs
-        venta.getDetalles().forEach(detalle -> {
+        // Procesar los detalles de la venta
+        double totalVenta = 0;
+        for (DetalleVenta detalle : venta.getDetalles()) {
+            // Validar el producto en cada detalle
             if (detalle.getProducto() == null || detalle.getProducto().getIdProducto() == null) {
-                throw new IllegalArgumentException("Producto inválido en detalle de venta");
+                throw new IllegalArgumentException("Producto inválido en detalle de venta.");
             }
 
             Optional<Producto> productoExistente = productoRepository.findById(detalle.getProducto().getIdProducto());
@@ -65,22 +67,50 @@ public class VentaServiceImpl implements VentaService {
                         "Producto no encontrado con ID: " + detalle.getProducto().getIdProducto());
             }
 
-            // Asignamos el producto al detalle
-            detalle.setProducto(productoExistente.get());
+            Producto producto = productoExistente.get();
+
+            // Verificar que haya suficiente cantidad de producto
+            if (producto.getCantidad() < detalle.getCantidad()) {
+                throw new IllegalArgumentException("No hay suficiente cantidad de " + producto.getNombreProducto() +
+                        " en inventario. Solo hay " + producto.getCantidad() + " disponible(s).");
+            }
+
+            // Asignar el producto al detalle
+            detalle.setProducto(producto);
+
+            // Validar que el precio del producto no sea nulo
+            if (producto.getPrecio() == null) {
+                throw new IllegalArgumentException(
+                        "El producto con ID " + producto.getIdProducto() + " no tiene un precio definido.");
+            }
+
+            // Calcular el subtotal para el detalle
+            double subtotal = detalle.getCantidad() * producto.getPrecio();
+            detalle.setSubtotal(subtotal);
+
+            // Actualizar la cantidad del producto en inventario
+            producto.setCantidad(producto.getCantidad() - detalle.getCantidad());
+            productoRepository.save(producto); // Actualiza el inventario
+
+            // Asignar la venta al detalle
             detalle.setVenta(venta);
-        });
 
-        // Calcular el total de la venta
-        Double totalVenta = venta.getDetalles().stream()
-                .mapToDouble(detalle -> detalle.getCantidad() * detalle.getProducto().getPrecio())
-                .sum();
+            // Acumular el total de la venta
+            totalVenta += subtotal;
+        }
 
+        // Asignar el total a la venta
         venta.setTotal(totalVenta);
+
+        // Asignar fecha y hora de la venta
         venta.setFechaVenta(LocalDate.now());
         venta.setHoraVenta(LocalTime.now());
 
-        // Guardar la venta y sus detalles
+        // Guardar la venta (esto también guarda los detalles gracias a la relación en
+        // cascada)
         Venta ventaGuardada = ventaRepository.save(venta);
+
+        // Guardar los detalles relacionados con la venta
         detalleVentaRepository.saveAll(venta.getDetalles());
 
         return ventaGuardada;
@@ -153,7 +183,6 @@ public class VentaServiceImpl implements VentaService {
             throw new IllegalArgumentException("Venta no encontrada con ID: " + idVenta);
         }
     }
-
 
     // Obtener ventas por usuario
     @Override

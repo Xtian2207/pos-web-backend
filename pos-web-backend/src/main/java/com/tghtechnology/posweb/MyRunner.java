@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 //@Component
-public class MyRunner implements CommandLineRunner {
+public class MyRunner /*implements CommandLineRunner*/ {
 
     @Autowired
     private CategoriaService categoriaService;
@@ -20,6 +20,7 @@ public class MyRunner implements CommandLineRunner {
     @Autowired
     private ProductoService productoService;
 
+    /* 
     @Override
     public void run(String... args) throws Exception {
         // PRUEBAS PARA CATEGORIA
@@ -120,4 +121,5 @@ public class MyRunner implements CommandLineRunner {
 
         System.out.println("==== Fin pruebas ProductoService ====\n");
     }
+    */
 }

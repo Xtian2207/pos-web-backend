@@ -36,7 +36,7 @@ public class DetalleVentaServiceImpl implements DetalleVentaService {
         detalleVenta.setVenta(detalleVenta.getVenta());       // Usamos el setter explícitamente
 
         // Calculamos el subtotal del detalle
-        detalleVenta.setSubtotal(detalleVenta.getCantidad() * detalleVenta.getPrecioUnitario());
+        //detalleVenta.setSubtotal(detalleVenta.getCantidad() * detalleVenta.getPrecioUnitario());
 
         // Guardamos el detalle de la venta
         return detalleVentaRepository.save(detalleVenta);
@@ -56,7 +56,6 @@ public class DetalleVentaServiceImpl implements DetalleVentaService {
 
             // Actualizamos solo la cantidad y precio, pero mantenemos las relaciones
             detalleVenta.setCantidad(nuevaCantidad);
-            detalleVenta.setPrecioUnitario(nuevoPrecioUnitario);
             detalleVenta.setSubtotal(nuevaCantidad * nuevoPrecioUnitario);
 
             // Validamos que el Producto y la Venta siguen siendo válidos

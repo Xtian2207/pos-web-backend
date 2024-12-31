@@ -53,7 +53,6 @@ class DetalleVentaServiceTest {
         detalleVenta.setProducto(producto);
         detalleVenta.setVenta(venta);
         detalleVenta.setCantidad(2);
-        detalleVenta.setPrecioUnitario(10.0);
     }
 
     @Test
@@ -105,7 +104,6 @@ class DetalleVentaServiceTest {
         assertNotNull(updatedDetalle);
         assertEquals(36.0, updatedDetalle.getSubtotal());
         assertEquals(3, updatedDetalle.getCantidad());
-        assertEquals(12.0, updatedDetalle.getPrecioUnitario());
     }
 
     @Test

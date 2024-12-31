@@ -51,7 +51,7 @@ class VentaServiceTest {
                 EstadoProducto.DISPONIBLE, null);
 
         // DetalleVenta Mock
-        detalleMock = new DetalleVenta(1L, null, productoMock, 2, 100.0, 200.0);
+        detalleMock = new DetalleVenta(1L, null, productoMock, 2, 100.0);
 
         // Venta Mock
         ventaMock = new Venta(1L, usuarioMock, List.of(detalleMock), 200.0, LocalTime.now(), LocalDate.now(),

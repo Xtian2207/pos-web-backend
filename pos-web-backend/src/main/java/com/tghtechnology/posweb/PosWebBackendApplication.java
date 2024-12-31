@@ -9,8 +9,5 @@ public class PosWebBackendApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(PosWebBackendApplication.class, args);
 	}
-<<<<<<< HEAD
-=======
 
->>>>>>> yorks
 }

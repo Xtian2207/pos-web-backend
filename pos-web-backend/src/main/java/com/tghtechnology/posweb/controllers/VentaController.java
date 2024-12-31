@@ -19,8 +19,8 @@ public class VentaController {
     // Registrar una venta
     @PostMapping
     public ResponseEntity<Venta> registrarVenta(@RequestBody Venta venta) {
-        Venta ventaRegistrada = ventaService.registrarVenta(venta);
-        return ResponseEntity.ok(ventaRegistrada);
+        ventaService.registrarVenta(venta);
+        return ResponseEntity.ok().build();
     }
 
     // Consultar todas las ventas

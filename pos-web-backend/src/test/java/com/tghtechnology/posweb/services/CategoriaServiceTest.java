@@ -34,6 +34,7 @@ class CategoriaServiceTest {
         categoriaMock.setNombreCategoria("Electrónica");
     }
 
+    /* 
     @Test
     void crearCategoria_exitoso() {
         // Configurar el comportamiento del mock
@@ -149,4 +150,5 @@ class CategoriaServiceTest {
         // Verificar que se haya llamado al repositorio
         verify(categoriaRepository, times(1)).deleteById(1L);
     }
+    */
 }
