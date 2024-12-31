@@ -1,8 +1,12 @@
 package com.tghtechnology.posweb.service.impl;
 
+import com.tghtechnology.posweb.data.dto.RolDto;
+import com.tghtechnology.posweb.data.dto.UsuarioDto;
 import com.tghtechnology.posweb.data.entities.EstadoUsuario;
 import com.tghtechnology.posweb.data.entities.Rol;
 import com.tghtechnology.posweb.data.entities.Usuario;
+import com.tghtechnology.posweb.data.map.RolMapper;
+import com.tghtechnology.posweb.data.map.UsuarioMapper;
 import com.tghtechnology.posweb.data.repository.RolRepository;
 import com.tghtechnology.posweb.data.repository.UsuarioRepository;
 import com.tghtechnology.posweb.service.UsuarioService;
@@ -12,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class UsuarioServiceImpl implements UsuarioService {
@@ -23,8 +28,13 @@ public class UsuarioServiceImpl implements UsuarioService {
     private RolRepository rolRepository;
 
     @Override
-    public List<Usuario> obtenerUsuarios(){
-        return usuarioRepository.findAll();
+    public List<UsuarioDto> obtenerUsuarios(){
+        
+        List<Usuario> usuarios =  usuarioRepository.findAll();
+        return usuarios.stream()
+                    .map(UsuarioMapper::toDTO)
+                    .collect(Collectors.toList());
+
     }
 
     @Override
@@ -56,10 +66,11 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     @Override
-    public Usuario obtenerUsuarioId(Long id){
+    public UsuarioDto obtenerUsuarioId(Long id){
         if (usuarioRepository.existsById(id)) {
-            Optional<Usuario> usuario = usuarioRepository.findById(id);
-            return usuario.orElse(null);
+            Usuario usuario = usuarioRepository.findById(id).orElse(null);
+            
+            return UsuarioMapper.toDTO(usuario);
         }else{return null;}
     }
 
@@ -103,11 +114,15 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     @Override
-    public Set<Rol> rolesUsuario(Long id){
+    public Set<RolDto> rolesUsuario(Long id){
         if (!usuarioRepository.existsById(id)) {
             return null;
         }
-        return usuarioRepository.findRolesByUsuarioId(id);
+        Set<Rol> roles = usuarioRepository.findRolesByUsuarioId(id);
+
+        return roles.stream()
+                        .map(RolMapper::toDto)
+                        .collect(Collectors.toSet());
     }
 
     @Override

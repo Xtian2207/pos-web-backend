@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 
+import com.tghtechnology.posweb.data.dto.RolDto;
 import com.tghtechnology.posweb.data.entities.Rol;
 import com.tghtechnology.posweb.service.impl.RolServiceImpl;
 
@@ -26,8 +27,8 @@ public class RolController {
 
     // Obtener lista de roles
     @GetMapping
-    public ResponseEntity<List<Rol>> listaRoles(){
-        List<Rol> lista = rolServiceImpl.obtenerRoles();
+    public ResponseEntity<List<RolDto>> listaRoles(){
+        List<RolDto> lista = rolServiceImpl.obtenerRoles();
 
         if(lista.isEmpty()){
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);

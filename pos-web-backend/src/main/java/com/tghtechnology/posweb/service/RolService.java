@@ -3,12 +3,13 @@ package com.tghtechnology.posweb.service;
 import com.tghtechnology.posweb.data.dto.RolDto;
 import com.tghtechnology.posweb.data.entities.Rol;
 import java.util.List;
+import java.util.Set;
 
 
 
 public interface RolService {
 
-    List<Rol> obtenerRoles();
+    List<RolDto> obtenerRoles();
 
     void ingresarRol(Rol rol);
 

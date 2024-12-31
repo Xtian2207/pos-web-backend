@@ -1,6 +1,8 @@
 package com.tghtechnology.posweb.service.impl;
 
+import com.tghtechnology.posweb.data.dto.RolDto;
 import com.tghtechnology.posweb.data.entities.Rol;
+import com.tghtechnology.posweb.data.map.RolMapper;
 import com.tghtechnology.posweb.data.repository.RolRepository;
 import com.tghtechnology.posweb.service.RolService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +11,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class RolServiceImpl implements RolService {
@@ -17,8 +21,11 @@ public class RolServiceImpl implements RolService {
     private RolRepository rolRepository;
         
     @Override
-    public List<Rol> obtenerRoles() {
-        return rolRepository.findAll();
+    public List<RolDto> obtenerRoles() {
+        List<Rol> roles = rolRepository.findAll();
+        return roles.stream()
+                        .map(RolMapper::toDto)
+                        .collect(Collectors.toList());
     }
 
     @Override

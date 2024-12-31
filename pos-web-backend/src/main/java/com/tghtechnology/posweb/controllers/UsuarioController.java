@@ -3,12 +3,13 @@ package com.tghtechnology.posweb.controllers;
 import java.util.List;
 import java.util.Set;
 
+import com.tghtechnology.posweb.data.dto.RolDto;
+import com.tghtechnology.posweb.data.dto.UsuarioDto;
 import com.tghtechnology.posweb.data.entities.EstadoUsuario;
 import com.tghtechnology.posweb.data.entities.Rol;
 import com.tghtechnology.posweb.data.entities.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,8 +37,8 @@ public class UsuarioController {
 
     // lista de usuarios
     @GetMapping
-    public ResponseEntity<List<Usuario>> listaUsuarios(){
-        List<Usuario> lista =  usuarioServiceImpl.obtenerUsuarios();
+    public ResponseEntity<List<UsuarioDto>> listaUsuarios(){
+        List<UsuarioDto> lista =  usuarioServiceImpl.obtenerUsuarios();
         if (lista.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
@@ -46,8 +47,8 @@ public class UsuarioController {
 
     // obtener usuario con su ID
     @GetMapping("/{id}")
-    public ResponseEntity<Usuario> obtenerUsuarioId(@PathVariable Long id){
-        Usuario usuario = usuarioServiceImpl.obtenerUsuarioId(id);
+    public ResponseEntity<UsuarioDto> obtenerUsuarioId(@PathVariable Long id){
+        UsuarioDto usuario = usuarioServiceImpl.obtenerUsuarioId(id);
         if (usuario !=null) {
             return new ResponseEntity<>(usuario, HttpStatus.OK);
         }else{
@@ -143,15 +144,16 @@ public class UsuarioController {
             }
                
         } catch (Exception e) {
-            return new ResponseEntity<>("Error al agregar nuevo rol al usuario :"+e.getMessage(), HttpStatus.BAD_REQUEST);            }
+            return new ResponseEntity<>("Error al agregar nuevo rol al usuario :"+e.getMessage(), HttpStatus.BAD_REQUEST);            
+        }
     }
 
     // Roles de un usuario
     @GetMapping("/{id}/roles")
-    public ResponseEntity<Set<Rol>> obtenerRolesUsuario(@PathVariable Long id){
+    public ResponseEntity<Set<RolDto>> obtenerRolesUsuario(@PathVariable Long id){
         try {
             if(usuarioServiceImpl.existeUsuario(id)){                    
-                Set<Rol>roles = usuarioServiceImpl.rolesUsuario(id);
+                Set<RolDto>roles = usuarioServiceImpl.rolesUsuario(id);
                 return new ResponseEntity<>(roles , HttpStatus.OK);
             }else{
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
