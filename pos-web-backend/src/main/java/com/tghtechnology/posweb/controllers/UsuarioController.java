@@ -4,10 +4,9 @@ import java.util.List;
 import java.util.Set;
 
 import com.tghtechnology.posweb.data.dto.RolDto;
+import com.tghtechnology.posweb.data.dto.UserCreateDTO;
 import com.tghtechnology.posweb.data.dto.UsuarioDto;
 import com.tghtechnology.posweb.data.entities.EstadoUsuario;
-import com.tghtechnology.posweb.data.entities.Rol;
-import com.tghtechnology.posweb.data.entities.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -58,7 +57,7 @@ public class UsuarioController {
 
     // nuevo usuario
     @PostMapping
-    public ResponseEntity<String> ingresarUsuario(@RequestBody Usuario usuario){
+    public ResponseEntity<String> ingresarUsuario(@RequestBody UserCreateDTO usuario){
         try {
             usuarioServiceImpl.ingresarUsuario(usuario);
             return new ResponseEntity<>("Usuario creado correctamente", HttpStatus.CREATED);
@@ -69,7 +68,7 @@ public class UsuarioController {
 
     // actualizar usuario
     @PutMapping("/{id}")
-    public ResponseEntity<String> actualizarUsuario(@PathVariable Long id, @RequestBody Usuario usuario){
+    public ResponseEntity<String> actualizarUsuario(@PathVariable Long id, @RequestBody UsuarioDto usuario){
         if(usuarioServiceImpl.obtenerUsuarioId(id) != null){
             usuario.setIdUsuario(id);
             usuarioServiceImpl.actualizarUsuario(usuario);

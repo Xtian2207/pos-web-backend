@@ -2,7 +2,6 @@ package com.tghtechnology.posweb.data.dto;
 
 import java.util.Set;
 
-import com.tghtechnology.posweb.data.entities.Rol;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

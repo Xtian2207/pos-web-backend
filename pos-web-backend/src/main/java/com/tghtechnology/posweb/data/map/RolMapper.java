@@ -1,19 +1,23 @@
 package com.tghtechnology.posweb.data.map;
 
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.tghtechnology.posweb.data.dto.RolDto;
 import com.tghtechnology.posweb.data.entities.Rol;
 
+
 public class RolMapper {
 
-    public static RolDto toDto(Rol rol){
+    @Autowired
+    private ModelMapper modelMapper;
 
-        if (rol == null) {
-            return null;
-        }
-
-        return new RolDto(
-            rol.getIdRol(),
-            rol.getNombreRol()
-        );
+    public Rol toEntity(RolDto rolDTO){
+        return modelMapper.map(rolDTO, Rol.class);
     }
+
+    public RolDto toDto (Rol rol){
+        return modelMapper.map(rol, RolDto.class);
+    }
+
 }

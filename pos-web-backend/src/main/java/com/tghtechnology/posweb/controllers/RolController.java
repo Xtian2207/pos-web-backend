@@ -38,13 +38,13 @@ public class RolController {
 
     // Crear un nuevo rol
     @PostMapping
-    public ResponseEntity<String> crearNuevoRol(@RequestBody Rol rol) {
-        if (rol.getNombreRol() == null || rol.getNombreRol().trim().isEmpty()) {
+    public ResponseEntity<String> crearNuevoRol(@RequestBody RolDto rold) {
+        if (rold.getNombreRol() == null || rold.getNombreRol().trim().isEmpty()) {
             return new ResponseEntity<>("Error: El nombre del rol no puede estar vacío", HttpStatus.BAD_REQUEST);
         }
 
         try {
-            rolServiceImpl.ingresarRol(rol);
+            rolServiceImpl.ingresarRol(rold);
             return new ResponseEntity<>("Rol creado con exito", HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>("Error: " + e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -66,12 +66,12 @@ public class RolController {
 
     // Editar un rol
     @PutMapping("/{id}")
-    public ResponseEntity<Rol> editarRol(@PathVariable Long id, @RequestBody Rol rolupdate){
+    public ResponseEntity<Rol> editarRol(@PathVariable Long id, @RequestBody RolDto rolupdate){
         try {
             Rol rol = rolServiceImpl.editarRol(id, rolupdate);
             return new ResponseEntity<>(rol, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 }
