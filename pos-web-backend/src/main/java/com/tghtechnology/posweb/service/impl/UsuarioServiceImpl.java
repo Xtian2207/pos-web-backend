@@ -1,6 +1,7 @@
 package com.tghtechnology.posweb.service.impl;
 
 import com.tghtechnology.posweb.data.dto.RolDto;
+import com.tghtechnology.posweb.data.dto.UserCreateDTO;
 import com.tghtechnology.posweb.data.dto.UsuarioDto;
 import com.tghtechnology.posweb.data.entities.EstadoUsuario;
 import com.tghtechnology.posweb.data.entities.Rol;
@@ -33,6 +34,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Autowired
     private RolMapper rolMapper;
 
+
     @Override
     public List<UsuarioDto> obtenerUsuarios(){
         
@@ -49,25 +51,30 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     @Override
-    public void ingresarUsuario(Usuario user) {
-        if (user == null) {
+    public void ingresarUsuario (UserCreateDTO userCtr) {
+        
+        if (userCtr == null) {
             throw new IllegalArgumentException("El usuario no puede ser nulo");
         }
-        if (usuarioRepository.findByCorreo(user.getCorreo()).isPresent()) {
-            throw new IllegalStateException("Ya existe un usuario con el correo proporcionado");
-        }
+        
+        Usuario user = usuarioMapper.toEntityCreate(userCtr);
         usuarioRepository.save(user);
+
     }
 
 
 
     @Override
-    public void actualizarUsuario(Usuario user){
-        if (usuarioRepository.existsById(user.getIdUsuario())) {
+    public void actualizarUsuario (UsuarioDto userD){
+        
+        if (userD == null) {
+            throw new IllegalArgumentException("El usuario no puede ser nulo");
+        }
+
+        Usuario user = usuarioMapper.toEntity(userD);
+        
+        if(existeUsuario(user.getIdUsuario())){
             usuarioRepository.save(user);
-            System.out.println("Se actualizo el usuario");
-        }else{
-            System.out.println("El usuario no existe");
         }
     }
 

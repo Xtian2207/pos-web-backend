@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,11 +31,13 @@ public class RolServiceImpl implements RolService {
     }
 
     @Override
-    public void ingresarRol(Rol rol){
+    public void ingresarRol(RolDto rold){
         
-        if(rolRepository.existsByNombreRol(rol.getNombreRol())){
+        if(rold == null){
             throw new IllegalArgumentException("El rol ya existe");
         }
+        
+        Rol rol = rolMapper.toEntity(rold);
 
         rolRepository.save(rol);
 
@@ -62,13 +63,14 @@ public class RolServiceImpl implements RolService {
     }
 
     @Override
-    public Rol editarRol(Long id, Rol rolActualizado) {
+    public Rol editarRol(Long id, RolDto rolActualizado) {
         // Verificar si el rol existe
+        Rol rol = rolMapper.toEntity(rolActualizado);
         if (!rolRepository.existsById(id)) {
             throw new IllegalArgumentException("El rol con ID " + id + " no existe");
         }
         Rol rolExistente = rolRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("El rol con ID " + id + " no existe"));
-        rolExistente.setNombreRol(rolActualizado.getNombreRol());
+        rolExistente.setNombreRol(rol.getNombreRol());
         return rolRepository.save(rolExistente);
     }
 
