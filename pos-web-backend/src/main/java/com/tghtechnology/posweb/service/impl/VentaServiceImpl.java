@@ -1,9 +1,13 @@
 package com.tghtechnology.posweb.service.impl;
 
+import com.tghtechnology.posweb.data.dto.DetalleVentaDTO;
+import com.tghtechnology.posweb.data.dto.VentaDTO;
 import com.tghtechnology.posweb.data.entities.DetalleVenta;
+import com.tghtechnology.posweb.data.entities.MetodoPago;
 import com.tghtechnology.posweb.data.entities.Producto;
 import com.tghtechnology.posweb.data.entities.Usuario;
 import com.tghtechnology.posweb.data.entities.Venta;
+import com.tghtechnology.posweb.data.mapper.VentaMapper;
 import com.tghtechnology.posweb.data.repository.DetalleVentaRepository;
 import com.tghtechnology.posweb.data.repository.ProductoRepository;
 import com.tghtechnology.posweb.data.repository.UsuarioRepository;
@@ -12,11 +16,12 @@ import com.tghtechnology.posweb.service.VentaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class VentaServiceImpl implements VentaService {
@@ -33,166 +38,217 @@ public class VentaServiceImpl implements VentaService {
     @Autowired
     private ProductoRepository productoRepository;
 
-    // Registrar venta
+    @Autowired
+    private VentaMapper ventaMapper;
+
     @Override
-    public Venta registrarVenta(Venta venta) {
-        if (venta.getDetalles() == null || venta.getDetalles().isEmpty()) {
+    public VentaDTO registrarVenta(VentaDTO ventaDTO) {
+        // Validaciones iniciales
+        if (ventaDTO.getDetalles() == null || ventaDTO.getDetalles().isEmpty()) {
             throw new IllegalArgumentException("La venta debe tener al menos un detalle.");
         }
 
         // Validar existencia del usuario por ID
-        if (venta.getUsuario() == null || venta.getUsuario().getIdUsuario() == null) {
-            throw new IllegalArgumentException("El usuario que realiza la venta no es válido.");
-        }
-
-        Optional<Usuario> usuarioExistente = usuarioRepository.findById(venta.getUsuario().getIdUsuario());
+        Optional<Usuario> usuarioExistente = usuarioRepository.findById(ventaDTO.getIdUsuario());
         if (!usuarioExistente.isPresent()) {
-            throw new IllegalArgumentException("Usuario no encontrado con ID: " + venta.getUsuario().getIdUsuario());
+            throw new IllegalArgumentException("Usuario no encontrado con ID: " + ventaDTO.getIdUsuario());
         }
 
-        // Asignar el usuario a la venta
-        venta.setUsuario(usuarioExistente.get());
+        Usuario usuario = usuarioExistente.get();
+        Venta venta = new Venta();
+        venta.setUsuario(usuario);
+        venta.setDetalles(new ArrayList<DetalleVenta>()); // Asegúrate de inicializar la lista de detalles.
 
         // Procesar los detalles de la venta
         double totalVenta = 0;
-        for (DetalleVenta detalle : venta.getDetalles()) {
-            // Validar el producto en cada detalle
-            if (detalle.getProducto() == null || detalle.getProducto().getIdProducto() == null) {
-                throw new IllegalArgumentException("Producto inválido en detalle de venta.");
-            }
-
-            Optional<Producto> productoExistente = productoRepository.findById(detalle.getProducto().getIdProducto());
+        for (DetalleVentaDTO detalleDTO : ventaDTO.getDetalles()) {
+            Optional<Producto> productoExistente = productoRepository.findById(detalleDTO.getIdProducto());
             if (!productoExistente.isPresent()) {
-                throw new IllegalArgumentException(
-                        "Producto no encontrado con ID: " + detalle.getProducto().getIdProducto());
+                throw new IllegalArgumentException("Producto no encontrado con ID: " + detalleDTO.getIdProducto());
             }
 
             Producto producto = productoExistente.get();
 
-            // Verificar que haya suficiente cantidad de producto
-            if (producto.getCantidad() < detalle.getCantidad()) {
-                throw new IllegalArgumentException("No hay suficiente cantidad de " + producto.getNombreProducto() +
-                        " en inventario. Solo hay " + producto.getCantidad() + " disponible(s).");
+            if (producto.getCantidad() < detalleDTO.getCantidad()) {
+                throw new IllegalArgumentException("No hay suficiente cantidad de " + producto.getNombreProducto());
             }
 
-            // Asignar el producto al detalle
+            DetalleVenta detalle = new DetalleVenta();
             detalle.setProducto(producto);
-
-            // Validar que el precio del producto no sea nulo
-            if (producto.getPrecio() == null) {
-                throw new IllegalArgumentException(
-                        "El producto con ID " + producto.getIdProducto() + " no tiene un precio definido.");
-            }
-
-            // Calcular el subtotal para el detalle
-            double subtotal = detalle.getCantidad() * producto.getPrecio();
-            detalle.setSubtotal(subtotal);
-
-            // Actualizar la cantidad del producto en inventario
-            producto.setCantidad(producto.getCantidad() - detalle.getCantidad());
-            productoRepository.save(producto); // Actualiza el inventario
-
-            // Asignar la venta al detalle
+            detalle.setCantidad(detalleDTO.getCantidad());
+            detalle.setSubtotal(detalleDTO.getCantidad() * producto.getPrecio());
             detalle.setVenta(venta);
 
-            // Acumular el total de la venta
-            totalVenta += subtotal;
+            // Actualizar inventario
+            producto.setCantidad(producto.getCantidad() - detalleDTO.getCantidad());
+            productoRepository.save(producto);
+
+            totalVenta += detalle.getSubtotal();
+            venta.getDetalles().add(detalle);
         }
 
-        // Asignar el total a la venta
+        // Asignar datos adicionales a la venta
         venta.setTotal(totalVenta);
-
-        // Asignar fecha y hora de la venta
-        venta.setFechaVenta(LocalDate.now());
+        venta.setFechaVenta(new Date());
         venta.setHoraVenta(LocalTime.now());
 
-        // Guardar la venta (esto también guarda los detalles gracias a la relación en
-        // cascada)
+        // Asegurarse de que el método de pago esté presente antes de guardar
+        if (ventaDTO.getMetodoPago() != null) {
+            try {
+                venta.setMetodoPago(MetodoPago.valueOf(ventaDTO.getMetodoPago())); // Asignar el método de pago
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Método de pago inválido.");
+            }
+        } else {
+            throw new IllegalArgumentException("Método de pago no puede ser nulo.");
+        }
+
+        // Guardar la venta y los detalles después de asignar todos los valores
         Venta ventaGuardada = ventaRepository.save(venta);
 
-        // Guardar los detalles relacionados con la venta
-        detalleVentaRepository.saveAll(venta.getDetalles());
+        // Guardar los detalles de la venta
+        for (DetalleVenta detalle : venta.getDetalles()) {
+            detalleVentaRepository.save(detalle);
+        }
 
-        return ventaGuardada;
+        // Mapeo de la entidad 'Venta' a DTO 'VentaDTO'
+        return ventaMapper.toDTO(ventaGuardada); // Aquí se convierte la venta a un DTO antes de devolverlo
     }
 
-    // Consultar todas las ventas
     @Override
-    public List<Venta> listarVentas() {
-        return ventaRepository.findAll();
+    public List<VentaDTO> listarVentas() {
+        return ventaRepository.findAll()
+                .stream()
+                .map(ventaMapper::toDTO)
+                .toList();
     }
 
-    // Obtener venta por ID
     @Override
-    public Optional<Venta> obtenerVentaPorId(Long idVenta) {
-        return ventaRepository.findById(idVenta);
+    public Optional<VentaDTO> obtenerVentaPorId(Long idVenta) {
+        return ventaRepository.findById(idVenta)
+                .map(ventaMapper::toDTO);
     }
 
-    // Actualizar venta
     @Override
-    public Venta actualizarVenta(Long idVenta, Venta ventaActualizada) {
+    public VentaDTO actualizarVenta(Long idVenta, VentaDTO ventaDTO) {
         Optional<Venta> ventaExistente = ventaRepository.findById(idVenta);
-        if (ventaExistente.isPresent()) {
-            Venta venta = ventaExistente.get();
-
-            // Si el usuario ha sido asignado, lo actualizamos
-            if (ventaActualizada.getUsuario() != null && ventaActualizada.getUsuario().getIdUsuario() != null) {
-                Optional<Usuario> usuarioExistente = usuarioRepository
-                        .findById(ventaActualizada.getUsuario().getIdUsuario());
-                if (usuarioExistente.isPresent()) {
-                    venta.setUsuario(usuarioExistente.get());
-                } else {
-                    throw new IllegalArgumentException("Usuario no encontrado");
-                }
-            }
-
-            // Actualizamos los detalles de la venta por IDs
-            if (ventaActualizada.getDetalles() != null && !ventaActualizada.getDetalles().isEmpty()) {
-                for (DetalleVenta detalleVenta : ventaActualizada.getDetalles()) {
-                    Optional<Producto> productoExistente = productoRepository
-                            .findById(detalleVenta.getProducto().getIdProducto());
-                    if (productoExistente.isPresent()) {
-                        detalleVenta.setProducto(productoExistente.get());
-                        detalleVenta.setVenta(venta);
-                    } else {
-                        throw new IllegalArgumentException(
-                                "Producto no encontrado con ID: " + detalleVenta.getProducto().getIdProducto());
-                    }
-                }
-                detalleVentaRepository.saveAll(ventaActualizada.getDetalles());
-            }
-
-            // Actualizamos otros detalles de la venta
-            venta.setMetodoPago(ventaActualizada.getMetodoPago());
-            venta.setTotal(ventaActualizada.getTotal());
-            venta.setFechaVenta(ventaActualizada.getFechaVenta());
-            venta.setHoraVenta(ventaActualizada.getHoraVenta());
-
-            return ventaRepository.save(venta);
-        } else {
+        if (!ventaExistente.isPresent()) {
             throw new IllegalArgumentException("Venta no encontrada con ID: " + idVenta);
         }
+
+        Venta venta = ventaExistente.get();
+
+        // Actualizar usuario (si se proporciona un nuevo usuario)
+        if (ventaDTO.getIdUsuario() != null) {
+            Optional<Usuario> usuarioExistente = usuarioRepository.findById(ventaDTO.getIdUsuario());
+            if (!usuarioExistente.isPresent()) {
+                throw new IllegalArgumentException("Usuario no encontrado con ID: " + ventaDTO.getIdUsuario());
+            }
+            venta.setUsuario(usuarioExistente.get());
+        }
+
+        // Actualizar método de pago (si se proporciona un nuevo método de pago)
+        if (ventaDTO.getMetodoPago() != null) {
+            try {
+                venta.setMetodoPago(MetodoPago.valueOf(ventaDTO.getMetodoPago().toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Método de pago inválido.");
+            }
+        }
+
+        // Si se proporcionan nuevos detalles de venta, actualizamos el total
+        double totalVenta = venta.getTotal(); // Iniciamos el total con el valor actual
+        if (ventaDTO.getDetalles() != null && !ventaDTO.getDetalles().isEmpty()) {
+            // Actualizamos los detalles de venta
+            for (DetalleVentaDTO detalleDTO : ventaDTO.getDetalles()) {
+                Optional<Producto> productoExistente = productoRepository.findById(detalleDTO.getIdProducto());
+                if (!productoExistente.isPresent()) {
+                    throw new IllegalArgumentException("Producto no encontrado con ID: " + detalleDTO.getIdProducto());
+                }
+
+                Producto producto = productoExistente.get();
+
+                // Validar que haya suficiente stock
+                if (producto.getCantidad() < detalleDTO.getCantidad()) {
+                    throw new IllegalArgumentException("No hay suficiente cantidad de " + producto.getNombreProducto());
+                }
+
+                // Buscar si el detalle ya existe en la venta
+                Optional<DetalleVenta> detalleExistente = venta.getDetalles().stream()
+                        .filter(d -> d.getProducto().getIdProducto().equals(detalleDTO.getIdProducto()))
+                        .findFirst();
+
+                if (detalleExistente.isPresent()) {
+                    // Si el detalle existe, actualizamos la cantidad y el subtotal
+                    DetalleVenta detalle = detalleExistente.get();
+                    int cantidadAnterior = detalle.getCantidad();
+                    detalle.setCantidad(detalleDTO.getCantidad());
+                    detalle.setSubtotal(detalleDTO.getCantidad() * producto.getPrecio());
+
+                    // Ajustar el total de la venta
+                    totalVenta -= cantidadAnterior * producto.getPrecio(); // Restamos el subtotal anterior
+                    totalVenta += detalle.getSubtotal(); // Sumamos el nuevo subtotal
+
+                    // Guardar el detalle actualizado en la base de datos
+                    detalleVentaRepository.save(detalle);
+
+                } else {
+                    // Si el detalle no existe, creamos uno nuevo
+                    DetalleVenta detalle = new DetalleVenta();
+                    detalle.setProducto(producto);
+                    detalle.setCantidad(detalleDTO.getCantidad());
+                    detalle.setSubtotal(detalleDTO.getCantidad() * producto.getPrecio());
+                    detalle.setVenta(venta);
+
+                    // Actualizar inventario
+                    producto.setCantidad(producto.getCantidad() - detalleDTO.getCantidad());
+                    productoRepository.save(producto);
+
+                    // Agregar al total
+                    totalVenta += detalle.getSubtotal();
+                    venta.getDetalles().add(detalle); // Añadir el nuevo detalle
+
+                    // Guardar el nuevo detalle en la base de datos
+                    detalleVentaRepository.save(detalle);
+                }
+            }
+        }
+
+        // Actualizar el total de la venta
+        venta.setTotal(totalVenta);
+
+        // Guardar la venta actualizada
+        Venta ventaGuardada = ventaRepository.save(venta);
+
+        return ventaMapper.toDTO(ventaGuardada);
     }
 
-    // Eliminar venta
     @Override
     public void eliminarVenta(Long idVenta) {
-        if (ventaRepository.existsById(idVenta)) {
-            ventaRepository.deleteById(idVenta);
-        } else {
+        if (!ventaRepository.existsById(idVenta)) {
             throw new IllegalArgumentException("Venta no encontrada con ID: " + idVenta);
         }
+        ventaRepository.deleteById(idVenta);
     }
 
-    // Obtener ventas por usuario
     @Override
-    public List<Venta> obtenerVentasPorUsuario(Long usuarioId) {
-        return ventaRepository.findByUsuario_IdUsuario(usuarioId);
+    public List<VentaDTO> obtenerVentasPorUsuario(Long usuarioId) {
+        List<Venta> ventas = ventaRepository.findByUsuario_IdUsuario(usuarioId);
+
+        List<VentaDTO> ventasDTO = ventas.stream()
+                .map(venta -> ventaMapper.toDTO(venta))
+                .collect(Collectors.toList());
+
+        return ventasDTO;
     }
 
-    // Obtener ventas por rango de fechas
     @Override
-    public List<Venta> obtenerVentasPorFecha(Date fechaInicio, Date fechaFin) {
-        return ventaRepository.findVentasByFechaVentaBetween(fechaInicio, fechaFin);
+    public List<VentaDTO> obtenerVentasPorFecha(Date fechaInicio, Date fechaFin) {
+        List<Venta> ventas = ventaRepository.findVentasByFechaVentaBetween(fechaInicio, fechaFin);
+
+        List<VentaDTO> ventasDTO = ventas.stream()
+                .map(venta -> ventaMapper.toDTO(venta))
+                .collect(Collectors.toList());
+        return ventasDTO;
     }
 }

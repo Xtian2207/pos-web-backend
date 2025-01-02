@@ -5,8 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Date;
 import java.util.List;
 
 @Table(name = "venta")
@@ -39,7 +39,7 @@ public class Venta {
     private LocalTime horaVenta;
 
     @Column(name = "fecha_venta")
-    private LocalDate fechaVenta;
+    private Date fechaVenta;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "metodo_pago", nullable = false)

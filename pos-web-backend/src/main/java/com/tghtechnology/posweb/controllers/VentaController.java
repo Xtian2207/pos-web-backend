@@ -1,11 +1,14 @@
 package com.tghtechnology.posweb.controllers;
 
-import com.tghtechnology.posweb.data.entities.Venta;
+import com.tghtechnology.posweb.data.dto.VentaDTO;
 import com.tghtechnology.posweb.service.VentaService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,39 +19,60 @@ public class VentaController {
     @Autowired
     private VentaService ventaService;
 
-    // Registrar una venta
-    @PostMapping
-    public ResponseEntity<Venta> registrarVenta(@RequestBody Venta venta) {
-        ventaService.registrarVenta(venta);
-        return ResponseEntity.ok().build();
+    @PostMapping("/registrar")
+    public ResponseEntity<VentaDTO> registrarVenta(@RequestBody VentaDTO ventaDTO) {
+        try {
+            VentaDTO ventaRegistrada = ventaService.registrarVenta(ventaDTO);
+            return new ResponseEntity<>(ventaRegistrada, HttpStatus.CREATED);
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
-    // Consultar todas las ventas
-    @GetMapping
-    public ResponseEntity<List<Venta>> listarVentas() {
-        List<Venta> ventas = ventaService.listarVentas();
-        return ResponseEntity.ok(ventas);
+    @GetMapping("/listar")
+    public ResponseEntity<List<VentaDTO>> listarVentas() {
+        List<VentaDTO> ventas = ventaService.listarVentas();
+        return new ResponseEntity<>(ventas, HttpStatus.OK);
     }
 
-    // Obtener venta por ID
     @GetMapping("/{idVenta}")
-    public ResponseEntity<Venta> obtenerVentaPorId(@PathVariable Long idVenta) {
-        Optional<Venta> venta = ventaService.obtenerVentaPorId(idVenta);
-        return venta.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<VentaDTO> obtenerVentaPorId(@PathVariable Long idVenta) {
+        Optional<VentaDTO> venta = ventaService.obtenerVentaPorId(idVenta);
+        return venta.map(ResponseEntity::ok)
+                    .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    // Actualizar una venta
-    @PutMapping("/{idVenta}")
-    public ResponseEntity<Venta> actualizarVenta(@PathVariable Long idVenta, @RequestBody Venta ventaActualizada) {
-        Venta ventaActualizadaResult = ventaService.actualizarVenta(idVenta, ventaActualizada);
-        return ResponseEntity.ok(ventaActualizadaResult);
+    @PutMapping("/actualizar/{idVenta}")
+    public ResponseEntity<VentaDTO> actualizarVenta(@PathVariable Long idVenta, @RequestBody VentaDTO ventaDTO) {
+        try {
+            VentaDTO ventaActualizada = ventaService.actualizarVenta(idVenta, ventaDTO);
+            return new ResponseEntity<>(ventaActualizada, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
-    // Eliminar una venta
-    @DeleteMapping("/{idVenta}")
+    @DeleteMapping("/eliminar/{idVenta}")
     public ResponseEntity<Void> eliminarVenta(@PathVariable Long idVenta) {
-        ventaService.eliminarVenta(idVenta);
-        return ResponseEntity.noContent().build();
+        try {
+            ventaService.eliminarVenta(idVenta);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
+    @GetMapping("/usuario/{usuarioId}")
+    public ResponseEntity<List<VentaDTO>> obtenerVentasPorUsuario(@PathVariable Long usuarioId) {
+        List<VentaDTO> ventas = ventaService.obtenerVentasPorUsuario(usuarioId);
+        return new ResponseEntity<>(ventas, HttpStatus.OK);
+    }
+
+    @GetMapping("/fechas")
+    public ResponseEntity<List<VentaDTO>> obtenerVentasPorFecha(@RequestParam("fechaInicio") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaInicio,
+                                                                @RequestParam("fechaFin") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaFin) {
+        List<VentaDTO> ventas = ventaService.obtenerVentasPorFecha(fechaInicio, fechaFin);
+        return new ResponseEntity<>(ventas, HttpStatus.OK);
+    }
 }
