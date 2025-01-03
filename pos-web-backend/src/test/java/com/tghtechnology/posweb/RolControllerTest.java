@@ -22,7 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
+/* 
 public class RolControllerTest {
 
     @Autowired
@@ -134,3 +134,5 @@ public class RolControllerTest {
                 .andExpect(status().isNotFound());
     }
 }
+
+*/

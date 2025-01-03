@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
-
+import jakarta.validation.*;
 import com.tghtechnology.posweb.data.dto.RolDto;
 import com.tghtechnology.posweb.data.entities.Rol;
 import com.tghtechnology.posweb.service.impl.RolServiceImpl;
@@ -38,7 +38,7 @@ public class RolController {
 
     // Crear un nuevo rol
     @PostMapping
-    public ResponseEntity<String> crearNuevoRol(@RequestBody RolDto rold) {
+    public ResponseEntity<String> crearNuevoRol(@Valid @RequestBody RolDto rold) {
         if (rold.getNombreRol() == null || rold.getNombreRol().trim().isEmpty()) {
             return new ResponseEntity<>("Error: El nombre del rol no puede estar vacío", HttpStatus.BAD_REQUEST);
         }
@@ -66,7 +66,7 @@ public class RolController {
 
     // Editar un rol
     @PutMapping("/{id}")
-    public ResponseEntity<Rol> editarRol(@PathVariable Long id, @RequestBody RolDto rolupdate){
+    public ResponseEntity<Rol> editarRol(@PathVariable Long id, @Valid @RequestBody RolDto rolupdate){
         try {
             Rol rol = rolServiceImpl.editarRol(id, rolupdate);
             return new ResponseEntity<>(rol, HttpStatus.OK);

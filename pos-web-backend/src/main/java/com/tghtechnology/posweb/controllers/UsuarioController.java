@@ -24,6 +24,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.tghtechnology.posweb.service.impl.RolServiceImpl;
 import com.tghtechnology.posweb.service.impl.UsuarioServiceImpl;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/usuarios")
 public class UsuarioController {
@@ -57,7 +59,7 @@ public class UsuarioController {
 
     // nuevo usuario
     @PostMapping
-    public ResponseEntity<String> ingresarUsuario(@RequestBody UserCreateDTO usuario){
+    public ResponseEntity<String> ingresarUsuario(@Valid @RequestBody UserCreateDTO usuario){
         try {
             usuarioServiceImpl.ingresarUsuario(usuario);
             return new ResponseEntity<>("Usuario creado correctamente", HttpStatus.CREATED);
@@ -68,7 +70,7 @@ public class UsuarioController {
 
     // actualizar usuario
     @PutMapping("/{id}")
-    public ResponseEntity<String> actualizarUsuario(@PathVariable Long id, @RequestBody UsuarioDto usuario){
+    public ResponseEntity<String> actualizarUsuario(@PathVariable Long id, @Valid @RequestBody UsuarioDto usuario){
         if(usuarioServiceImpl.obtenerUsuarioId(id) != null){
             usuario.setIdUsuario(id);
             usuarioServiceImpl.actualizarUsuario(usuario);
