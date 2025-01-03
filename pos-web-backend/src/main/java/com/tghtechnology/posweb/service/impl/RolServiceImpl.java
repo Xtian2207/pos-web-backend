@@ -2,7 +2,7 @@ package com.tghtechnology.posweb.service.impl;
 
 import com.tghtechnology.posweb.data.dto.RolDto;
 import com.tghtechnology.posweb.data.entities.Rol;
-import com.tghtechnology.posweb.data.map.RolMapper;
+import com.tghtechnology.posweb.data.mapper.RolMapper;
 import com.tghtechnology.posweb.data.repository.RolRepository;
 import com.tghtechnology.posweb.service.RolService;
 import org.springframework.beans.factory.annotation.Autowired;

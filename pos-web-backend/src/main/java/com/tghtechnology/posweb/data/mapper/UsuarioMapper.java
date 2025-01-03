@@ -1,4 +1,4 @@
-package com.tghtechnology.posweb.data.map;
+package com.tghtechnology.posweb.data.mapper;
 
 import com.tghtechnology.posweb.data.entities.Usuario;
 import com.tghtechnology.posweb.data.dto.UserCreateDTO;

@@ -1,4 +1,4 @@
-package com.tghtechnology.posweb.data.map;
+package com.tghtechnology.posweb.data.mapper;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;

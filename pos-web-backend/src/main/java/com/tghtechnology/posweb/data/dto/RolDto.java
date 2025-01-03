@@ -13,7 +13,7 @@ public class RolDto {
 
     private Long idRol;
 
-    @NotBlank
+    @NotBlank(message = "El nombre del rol no puede estar vacio")
     @Size(min = 3, max = 50, message = "El rol debe tener como minimo 3 caracteres")
     private String nombreRol;
 }

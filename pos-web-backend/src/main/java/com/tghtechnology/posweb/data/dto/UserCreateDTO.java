@@ -14,15 +14,15 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UserCreateDTO {
 
-    @NotBlank
+    @NotBlank(message = "El nombre no puede estar vacio")
     @Size(min = 3, max = 50, message = "El nombre debe estar entre 3 a 50 caracteres")
     private String nombre;
 
-    @NotBlank
+    @NotBlank(message = "El apellido no puede estar vacio")
     @Size(min = 3, max = 50, message = "El apellido debe estar entre 3 a 50 caracteres")
     private String apellido;
     
-    @Email
+    @Email(message = "El correo debe respetar el formato")
     private String correo;
     
     @NotNull(message = "La contraseña no puede ser nula")
@@ -30,6 +30,6 @@ public class UserCreateDTO {
     @Pattern(regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[@#$%^&+=]).{8,}$", message = "La contraseña debe contener al menos una letra mayúscula, una minúscula, un número y un carácter especial")
     private String pass;
     
-    @NotBlank
+    @NotBlank(message = "Tiene que ser uno de los estados definidos -- ACTIVO O INACTIVO")
     private String estado;
 }

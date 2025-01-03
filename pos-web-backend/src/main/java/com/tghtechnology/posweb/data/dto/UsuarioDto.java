@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 public class UsuarioDto {
     
     @NotEmpty
-    @Positive
+    @Positive(message = "El id no puede ser nulo")
     private Long idUsuario;
     
     @NotBlank
@@ -28,10 +28,10 @@ public class UsuarioDto {
     @Size(min = 3, max = 50, message = "El apellido debe estar entre 3 a 50 caracteres")
     private String apellido;
 
-    @Email
+    @Email(message = "El correo debe respetar el formato")
     private String correo;
     
-    @NotBlank
+    @NotBlank(message = "Tiene que ser uno de los estados definidos -- ACTIVO O INACTIVO")
     private String estado;
     
     
