@@ -3,6 +3,7 @@ package com.tghtechnology.posweb.data.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+@Table(name = "categoria")
 @Entity
 @Data
 @Getter
@@ -20,4 +21,7 @@ public class Categoria {
     @Column(name = "nombre_categoria", nullable = false, length = 50)
     private String nombreCategoria;
 
+    public Categoria(String nombreCategoria) {
+        this.nombreCategoria = nombreCategoria;
+    }
 }

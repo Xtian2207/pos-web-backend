@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@Table(name = "detalle_venta")
 @Entity
 @Setter
 @Getter
@@ -29,9 +30,6 @@ public class DetalleVenta {
 
     @Column(name = "cantidad", nullable = false)
     private Integer cantidad;
-
-    @Column(name = "precio_unitario", nullable = false)
-    private Double precioUnitario;
 
     @Column(name = "subtotal", nullable = false)
     private Double subtotal;

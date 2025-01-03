@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@Table(name = "producto")
 @Entity
 @Setter
 @Getter
@@ -39,4 +40,11 @@ public class Producto {
     @JoinColumn(name = "id_categoria", referencedColumnName = "id_categoria")
     private Categoria categoria;
 
+    public Producto(String nombreProducto, String descripcion, Double precio, int cantidad, EstadoProducto estado) {
+        this.nombreProducto = nombreProducto;
+        this.descripcion = descripcion;
+        this.precio = precio;
+        this.cantidad = cantidad;
+        this.estado = estado;
+    }
 }

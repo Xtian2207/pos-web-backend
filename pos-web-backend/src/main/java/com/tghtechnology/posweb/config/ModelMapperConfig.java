@@ -1,15 +1,16 @@
-package com.tghtechnology.posweb.data.map;
+package com.tghtechnology.posweb.config;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class AppConfig {
+public class ModelMapperConfig {
 
     @Bean
     public ModelMapper modelMapper(){
         return new ModelMapper();
     }
 
+    
 }

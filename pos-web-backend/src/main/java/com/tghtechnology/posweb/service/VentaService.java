@@ -1,6 +1,6 @@
 package com.tghtechnology.posweb.service;
 
-import com.tghtechnology.posweb.data.entities.Venta;
+import com.tghtechnology.posweb.data.dto.VentaDTO;
 
 import java.util.Date;
 import java.util.List;
@@ -8,18 +8,18 @@ import java.util.Optional;
 
 public interface VentaService {
 
-    Venta registrarVenta(Venta venta);
+    VentaDTO registrarVenta(VentaDTO ventaDTO);
 
-    List<Venta> listarVentas();
+    List<VentaDTO> listarVentas();
 
-    Optional<Venta> obtenerVentaPorId(Long idVenta);
+    Optional<VentaDTO> obtenerVentaPorId(Long idVenta);
 
-    Venta actualizarVenta(Long idVenta, Venta ventaActualizada);
+    VentaDTO actualizarVenta(Long idVenta, VentaDTO ventaDTO);
 
     void eliminarVenta(Long idVenta);
 
-    List<Venta> obtenerVentasPorUsuario(Long usuarioId);
+    List<VentaDTO> obtenerVentasPorUsuario(Long usuarioId);
 
-    List<Venta> obtenerVentasPorFecha(Date fechaInicio, Date fechaFin);
+    List<VentaDTO> obtenerVentasPorFecha(Date fechaInicio, Date fechaFin);
 
 }

@@ -30,7 +30,7 @@ public class RolController {
     public ResponseEntity<List<RolDto>> listaRoles(){
         List<RolDto> lista = rolServiceImpl.obtenerRoles();
 
-        if(lista.isEmpty()){
+        if (lista.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
         return new ResponseEntity<>(lista, HttpStatus.OK);
@@ -55,12 +55,12 @@ public class RolController {
 
     // Eliminar un rol
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> eliminarRol(@PathVariable Long id){
+    public ResponseEntity<String> eliminarRol(@PathVariable Long id) {
         try {
             rolServiceImpl.eliminarRol(id);
             return new ResponseEntity<>("Rol eliminado con exito", HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>("Error al eliminar rol: "+ e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Error al eliminar rol: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
