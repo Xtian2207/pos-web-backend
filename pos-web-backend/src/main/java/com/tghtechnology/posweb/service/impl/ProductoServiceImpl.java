@@ -7,10 +7,11 @@ import com.tghtechnology.posweb.data.entities.Producto;
 import com.tghtechnology.posweb.data.mapper.ProductoMapper;
 import com.tghtechnology.posweb.data.repository.CategoriaRepository;
 import com.tghtechnology.posweb.data.repository.ProductoRepository;
+import com.tghtechnology.posweb.exceptions.BadRequestException;
+import com.tghtechnology.posweb.exceptions.ResourceNotFoundException;
 import com.tghtechnology.posweb.service.ProductoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,23 +31,19 @@ public class ProductoServiceImpl implements ProductoService {
     private ProductoMapper productoMapper;
 
     @Override
-    public ProductoDTO registrarProducto(Long categoriaId, ProductoDTO productoDTO) throws Exception {
-        try {
-            Categoria categoria = categoriaRepository.findById(categoriaId)
-                    .orElseThrow(() -> new Exception("Categoría con ID " + categoriaId + " no encontrada"));
+    public ProductoDTO registrarProducto(Long categoriaId, ProductoDTO productoDTO) {
+        Categoria categoria = categoriaRepository.findById(categoriaId)
+                .orElseThrow(() -> new ResourceNotFoundException("Categoría con ID " + categoriaId + " no encontrada"));
 
-            Producto producto = productoMapper.toEntity(productoDTO);
-            producto.setCategoria(categoria);
-
-            Producto productoGuardado = productoRepository.save(producto);
-            return productoMapper.toDTO(productoGuardado);
-        } catch (DataIntegrityViolationException e) {
-            log.error("Error al crear el producto: {}", e.getMessage());
-            throw new Exception("Error al crear el producto. Verifique los datos ingresados.", e);
-        } catch (Exception e) {
-            log.error("Error al registrar producto: {}", e.getMessage());
-            throw e;
+        if (productoDTO.getPrecio() == null || productoDTO.getPrecio() <= 0) {
+            throw new BadRequestException("El precio del producto debe ser mayor que 0");
         }
+
+        Producto producto = productoMapper.toEntity(productoDTO);
+        producto.setCategoria(categoria);
+
+        Producto productoGuardado = productoRepository.save(producto);
+        return productoMapper.toDTO(productoGuardado);
     }
 
     @Override
@@ -71,33 +68,31 @@ public class ProductoServiceImpl implements ProductoService {
 
     @Override
     public ProductoDTO actualizarProducto(Long idProducto, ProductoDTO productoDTO) {
-        Optional<Producto> productoExistente = productoRepository.findByIdProducto(idProducto);
-        if (productoExistente.isPresent()) {
-            Producto producto = productoExistente.get();
-            productoMapper.toEntity(productoDTO);
-            Producto productoActualizado = productoRepository.save(producto);
-            return productoMapper.toDTO(productoActualizado);
-        } else {
-            return null;
-        }
+        Producto producto = productoRepository.findByIdProducto(idProducto)
+                .orElseThrow(() -> new ResourceNotFoundException("Producto con ID " + idProducto + " no encontrado"));
+
+        // Actualizar los datos del producto con los del DTO
+        productoMapper.toEntity(productoDTO, producto);
+        Producto productoActualizado = productoRepository.save(producto);
+
+        return productoMapper.toDTO(productoActualizado);
     }
 
     @Override
     public void eliminarProducto(Long idProducto) {
+        productoRepository.findById(idProducto)
+                .orElseThrow(() -> new ResourceNotFoundException("Producto con ID " + idProducto + " no encontrado"));
         productoRepository.deleteById(idProducto);
     }
 
     @Override
     public ProductoDTO cambiarEstadoProducto(Long idProducto, EstadoProducto nuevoEstadoProducto) {
-        Optional<Producto> productoExistente = productoRepository.findByIdProducto(idProducto);
-        if (productoExistente.isPresent()) {
-            Producto producto = productoExistente.get();
-            producto.setEstado(nuevoEstadoProducto);
-            Producto productoActualizado = productoRepository.save(producto);
-            return productoMapper.toDTO(productoActualizado);
-        } else {
-            return null;
-        }
+        Producto producto = productoRepository.findByIdProducto(idProducto)
+                .orElseThrow(() -> new ResourceNotFoundException("Producto con ID " + idProducto + " no encontrado"));
+
+        producto.setEstado(nuevoEstadoProducto);
+        Producto productoActualizado = productoRepository.save(producto);
+        return productoMapper.toDTO(productoActualizado);
     }
 
     @Override

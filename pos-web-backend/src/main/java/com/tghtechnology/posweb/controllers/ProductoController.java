@@ -2,7 +2,10 @@ package com.tghtechnology.posweb.controllers;
 
 import com.tghtechnology.posweb.data.dto.ProductoDTO;
 import com.tghtechnology.posweb.data.entities.EstadoProducto;
+import com.tghtechnology.posweb.exceptions.ResourceNotFoundException;
 import com.tghtechnology.posweb.service.ProductoService;
+
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,13 +22,10 @@ public class ProductoController {
     private ProductoService productoService;
 
     @PostMapping("/registrar/{categoriaId}")
-    public ResponseEntity<?> registrarProducto(@PathVariable Long categoriaId, @RequestBody ProductoDTO productoDTO) {
-        try {
-            ProductoDTO productoRegistrado = productoService.registrarProducto(categoriaId, productoDTO);
-            return ResponseEntity.status(HttpStatus.CREATED).body(productoRegistrado);
-        } catch (Exception exception) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
-        }
+    public ResponseEntity<?> registrarProducto(@PathVariable Long categoriaId,
+            @RequestBody @Valid ProductoDTO productoDTO) {
+        ProductoDTO productoRegistrado = productoService.registrarProducto(categoriaId, productoDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(productoRegistrado);
     }
 
     @GetMapping
@@ -48,29 +48,35 @@ public class ProductoController {
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).body("Producto no encontrado");
     }
 
-    @PutMapping("/actualizar/{idProducto}")
+    @PutMapping("/{idProducto}")
     public ResponseEntity<?> actualizarProducto(@PathVariable Long idProducto, @RequestBody ProductoDTO productoDTO) {
-        ProductoDTO producto = productoService.actualizarProducto(idProducto, productoDTO);
-        return producto != null ? ResponseEntity.ok(producto)
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).body("Producto no encontrado para actualizar");
+        try {
+            ProductoDTO productoActualizado = productoService.actualizarProducto(idProducto, productoDTO);
+            return ResponseEntity.ok(productoActualizado);
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 
-    @DeleteMapping("/eliminar/{idProducto}")
+    @DeleteMapping("/{idProducto}")
     public ResponseEntity<?> eliminarProducto(@PathVariable Long idProducto) {
         try {
             productoService.eliminarProducto(idProducto);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        } catch (Exception exception) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error al eliminar el producto");
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
     @PutMapping("/estado/{idProducto}")
     public ResponseEntity<?> cambiarEstadoProducto(@PathVariable Long idProducto,
             @RequestBody EstadoProducto estadoProducto) {
-        ProductoDTO productoActualizado = productoService.cambiarEstadoProducto(idProducto, estadoProducto);
-        return productoActualizado != null ? ResponseEntity.ok(productoActualizado)
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).body("Producto no encontrado para cambiar el estado");
+        try {
+            ProductoDTO productoActualizado = productoService.cambiarEstadoProducto(idProducto, estadoProducto);
+            return ResponseEntity.ok(productoActualizado);
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 
     @GetMapping("/estado/{estado}")
