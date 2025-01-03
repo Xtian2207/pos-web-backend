@@ -12,6 +12,9 @@ import com.tghtechnology.posweb.data.repository.RolRepository;
 import com.tghtechnology.posweb.data.repository.UsuarioRepository;
 import com.tghtechnology.posweb.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -58,8 +61,8 @@ public class UsuarioServiceImpl implements UsuarioService {
         }
         
         Usuario user = usuarioMapper.toEntityCreate(userCtr);
-        usuarioRepository.save(user);
 
+        usuarioRepository.save(user);
     }
 
 

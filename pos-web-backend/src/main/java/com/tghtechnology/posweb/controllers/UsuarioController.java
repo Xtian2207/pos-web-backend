@@ -8,6 +8,7 @@ import com.tghtechnology.posweb.data.dto.UserCreateDTO;
 import com.tghtechnology.posweb.data.dto.UsuarioDto;
 import com.tghtechnology.posweb.data.entities.EstadoUsuario;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -63,7 +64,9 @@ public class UsuarioController {
         try {
             usuarioServiceImpl.ingresarUsuario(usuario);
             return new ResponseEntity<>("Usuario creado correctamente", HttpStatus.CREATED);
-        } catch (Exception e) {
+        }catch(DataIntegrityViolationException e){ 
+            return new ResponseEntity<>("Error: El correo ya está registrado.", HttpStatus.BAD_REQUEST);
+        }catch (Exception e) {
             return new ResponseEntity<>("Error al crear usuario: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
