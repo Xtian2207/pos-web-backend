@@ -1,10 +1,12 @@
 package com.tghtechnology.posweb.data.entities;
 
+import java.util.HashSet;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import java.util.Set;
 
 @Table(name = "usuario")
 @Entity
@@ -32,9 +34,13 @@ public class Usuario {
     @Column(name = "contraseña", nullable = false, length = 100)
     private String pass;
 
-    @ManyToOne
-    @JoinColumn(name = "id_rol", referencedColumnName = "id_rol", nullable = false)
-    private Rol rol;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "users_roles",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "rol_id")
+    )
+    private Set<Rol> roles = new HashSet<>();
 
     @Enumerated(EnumType.STRING)
     @Column(name = "estado", nullable = true)

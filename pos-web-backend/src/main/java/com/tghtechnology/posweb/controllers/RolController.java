@@ -13,7 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
-
+import jakarta.validation.*;
+import com.tghtechnology.posweb.data.dto.RolDto;
 import com.tghtechnology.posweb.data.entities.Rol;
 import com.tghtechnology.posweb.service.impl.RolServiceImpl;
 
@@ -26,8 +27,8 @@ public class RolController {
 
     // Obtener lista de roles
     @GetMapping
-    public ResponseEntity<List<Rol>> listaRoles() {
-        List<Rol> lista = rolServiceImpl.obtenerRoles();
+    public ResponseEntity<List<RolDto>> listaRoles(){
+        List<RolDto> lista = rolServiceImpl.obtenerRoles();
 
         if (lista.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -37,13 +38,13 @@ public class RolController {
 
     // Crear un nuevo rol
     @PostMapping
-    public ResponseEntity<String> crearNuevoRol(@RequestBody Rol rol) {
-        if (rol.getNombreRol() == null || rol.getNombreRol().trim().isEmpty()) {
+    public ResponseEntity<String> crearNuevoRol(@Valid @RequestBody RolDto rold) {
+        if (rold.getNombreRol() == null || rold.getNombreRol().trim().isEmpty()) {
             return new ResponseEntity<>("Error: El nombre del rol no puede estar vacío", HttpStatus.BAD_REQUEST);
         }
 
         try {
-            rolServiceImpl.ingresarRol(rol);
+            rolServiceImpl.ingresarRol(rold);
             return new ResponseEntity<>("Rol creado con exito", HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>("Error: " + e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -65,7 +66,7 @@ public class RolController {
 
     // Editar un rol
     @PutMapping("/{id}")
-    public ResponseEntity<Rol> editarRol(@PathVariable Long id, @RequestBody Rol rolupdate) {
+    public ResponseEntity<Rol> editarRol(@PathVariable Long id, @Valid @RequestBody RolDto rolupdate){
         try {
             Rol rol = rolServiceImpl.editarRol(id, rolupdate);
             return new ResponseEntity<>(rol, HttpStatus.OK);

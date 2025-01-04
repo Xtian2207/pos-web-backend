@@ -1,14 +1,26 @@
 package com.tghtechnology.posweb.service.impl;
 
+import com.tghtechnology.posweb.data.dto.RolDto;
+import com.tghtechnology.posweb.data.dto.UserCreateDTO;
+import com.tghtechnology.posweb.data.dto.UsuarioDto;
 import com.tghtechnology.posweb.data.entities.EstadoUsuario;
+import com.tghtechnology.posweb.data.entities.Rol;
 import com.tghtechnology.posweb.data.entities.Usuario;
+import com.tghtechnology.posweb.data.mapper.RolMapper;
+import com.tghtechnology.posweb.data.mapper.UsuarioMapper;
+import com.tghtechnology.posweb.data.repository.RolRepository;
 import com.tghtechnology.posweb.data.repository.UsuarioRepository;
 import com.tghtechnology.posweb.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class UsuarioServiceImpl implements UsuarioService {
@@ -16,9 +28,24 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
+    @Autowired
+    private RolRepository rolRepository;
+
+    @Autowired
+    private UsuarioMapper usuarioMapper;
+
+    @Autowired
+    private RolMapper rolMapper;
+
+
     @Override
-    public List<Usuario> obtenerUsuarios(){
-        return usuarioRepository.findAll();
+    public List<UsuarioDto> obtenerUsuarios(){
+        
+        List<Usuario> usuarios =  usuarioRepository.findAll();
+        return usuarios.stream()
+                    .map(usuarioMapper::toDto)
+                    .collect(Collectors.toList());
+
     }
 
     @Override
@@ -27,33 +54,39 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     @Override
-    public void ingresarUsuario(Usuario user) {
-        if (user == null) {
+    public void ingresarUsuario (UserCreateDTO userCtr) {
+        
+        if (userCtr == null) {
             throw new IllegalArgumentException("El usuario no puede ser nulo");
         }
-        if (usuarioRepository.findByCorreo(user.getCorreo()).isPresent()) {
-            throw new IllegalStateException("Ya existe un usuario con el correo proporcionado");
-        }
+        
+        Usuario user = usuarioMapper.toEntityCreate(userCtr);
+
         usuarioRepository.save(user);
     }
 
 
 
     @Override
-    public void actualizarUsuario(Usuario user){
-        if (usuarioRepository.existsById(user.getIdUsuario())) {
+    public void actualizarUsuario (UsuarioDto userD){
+        
+        if (userD == null) {
+            throw new IllegalArgumentException("El usuario no puede ser nulo");
+        }
+
+        Usuario user = usuarioMapper.toEntity(userD);
+        
+        if(existeUsuario(user.getIdUsuario())){
             usuarioRepository.save(user);
-            System.out.println("Se actualizo el usuario");
-        }else{
-            System.out.println("El usuario no existe");
         }
     }
 
     @Override
-    public Usuario obtenerUsuarioId(Long id){
+    public UsuarioDto obtenerUsuarioId(Long id){
         if (usuarioRepository.existsById(id)) {
-            Optional<Usuario> usuario = usuarioRepository.findById(id);
-            return usuario.orElse(null);
+            Usuario usuario = usuarioRepository.findById(id).orElse(null);
+            
+            return usuarioMapper.toDto(usuario);
         }else{return null;}
     }
 
@@ -82,6 +115,7 @@ public class UsuarioServiceImpl implements UsuarioService {
             }
         }
     }
+    
 
 
     @Override
@@ -95,5 +129,35 @@ public class UsuarioServiceImpl implements UsuarioService {
         }
     }
 
+    @Override
+    public Set<RolDto> rolesUsuario(Long id){
+        if (!usuarioRepository.existsById(id)) {
+            return null;
+        }
+        Set<Rol> roles = usuarioRepository.findRolesByUsuarioId(id);
+
+        return roles.stream()
+                        .map(rolMapper::toDto)
+                        .collect(Collectors.toSet());
+    }
+
+    @Override
+    public void agregarRol(Long idUsuario, Long id){
+        Usuario usuario = usuarioRepository.findById(idUsuario).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        Rol rol = rolRepository.findById(id).orElseThrow(()->new RuntimeException("Rol no encontrado"));
+
+        usuario.getRoles().add(rol);
+        usuarioRepository.save(usuario);
+
+    }
+    
+    @Override
+    public void eliminarRol(Long idUsuario, Long idRol){
+        Usuario usuario = usuarioRepository.findById(idUsuario).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        Rol rol = rolRepository.findById(idRol).orElseThrow(()->new RuntimeException("Rol no encontrado"));
+
+        usuario.getRoles().remove(rol);
+        usuarioRepository.save(usuario);
+    }
 
 }

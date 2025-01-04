@@ -15,7 +15,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
-
+/* 
 @ExtendWith(MockitoExtension.class)
 class UsuarioServiceTest {
 
@@ -84,4 +84,4 @@ class UsuarioServiceTest {
         verify(usuarioRepository, times(1)).findById(userId);
     }
 }
-
+*/

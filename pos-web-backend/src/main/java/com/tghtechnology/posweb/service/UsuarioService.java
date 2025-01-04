@@ -1,22 +1,26 @@
 package com.tghtechnology.posweb.service;
 
-import com.tghtechnology.posweb.data.entities.Usuario;
+import com.tghtechnology.posweb.data.dto.RolDto;
+import com.tghtechnology.posweb.data.dto.UserCreateDTO;
+import com.tghtechnology.posweb.data.dto.UsuarioDto;
+
 
 import java.util.List;
+import java.util.Set;
 
 
 public interface UsuarioService {
 
     // obtener todos los usuarios
-    List<Usuario> obtenerUsuarios();
+    List<UsuarioDto> obtenerUsuarios();
 
     // actualizar o agregar nuevo usuario
-    void ingresarUsuario(Usuario user);
+    void ingresarUsuario(UserCreateDTO user);
     
-    void actualizarUsuario(Usuario user);
+    void actualizarUsuario(UsuarioDto user);
 
     // buscar un usuario
-    Usuario obtenerUsuarioId(Long idUser);
+    UsuarioDto obtenerUsuarioId(Long idUser);
 
     // eliminar un usuario
     void eliminarUsuario(Long idUser);
@@ -27,4 +31,10 @@ public interface UsuarioService {
 
     boolean existeUsuario(Long id);
 
+    // roles de un usuario
+    Set<RolDto> rolesUsuario(Long id);
+
+    void agregarRol(Long id, Long rol);
+
+    void eliminarRol(Long idUsuario, Long idRol);
 }

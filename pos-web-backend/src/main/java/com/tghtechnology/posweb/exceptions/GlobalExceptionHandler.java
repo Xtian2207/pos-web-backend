@@ -3,6 +3,7 @@ package com.tghtechnology.posweb.exceptions;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -53,4 +54,13 @@ public class GlobalExceptionHandler {
         );
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+    
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<String> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        if (ex.getMessage().contains("UK2mlfr087gb1ce55f2j87o74t")) {
+            return ResponseEntity.badRequest().body("Error: El correo ya está registrado.");
+        }
+        return ResponseEntity.internalServerError().body("Error: Se produjo un error inesperado.");
+    }
+   
 }
