@@ -1,4 +1,4 @@
-package com.tghtechnology.posweb;
+package com.tghtechnology.posweb.controllers;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
