@@ -11,12 +11,21 @@ import com.tghtechnology.posweb.data.mapper.UsuarioMapper;
 import com.tghtechnology.posweb.data.repository.RolRepository;
 import com.tghtechnology.posweb.data.repository.UsuarioRepository;
 import com.tghtechnology.posweb.service.UsuarioService;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -37,6 +46,11 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Autowired
     private RolMapper rolMapper;
 
+    
+    @Autowired
+    @Lazy
+    private PasswordEncoder passwordEncoder;
+
 
     @Override
     public List<UsuarioDto> obtenerUsuarios(){
@@ -54,13 +68,13 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     @Override
-    public void ingresarUsuario (UserCreateDTO userCtr) {
-        
+    public void ingresarUsuario(UserCreateDTO userCtr) {
         if (userCtr == null) {
             throw new IllegalArgumentException("El usuario no puede ser nulo");
         }
-        
+        userCtr.setPass(passwordEncoder.encode(userCtr.getPass()));
         Usuario user = usuarioMapper.toEntityCreate(userCtr);
+
 
         usuarioRepository.save(user);
     }
@@ -68,15 +82,13 @@ public class UsuarioServiceImpl implements UsuarioService {
 
 
     @Override
-    public void actualizarUsuario (UsuarioDto userD){
-        
+    public void actualizarUsuario(UsuarioDto userD) {
         if (userD == null) {
             throw new IllegalArgumentException("El usuario no puede ser nulo");
         }
 
         Usuario user = usuarioMapper.toEntity(userD);
-        
-        if(existeUsuario(user.getIdUsuario())){
+        if (existeUsuario(user.getIdUsuario())) {
             usuarioRepository.save(user);
         }
     }
@@ -119,12 +131,12 @@ public class UsuarioServiceImpl implements UsuarioService {
 
 
     @Override
-    public void cambiarConstrasena(Long id, String pass){
-        Optional<Usuario> useroptiona = usuarioRepository.findById(id);
+    public void cambiarConstrasena(Long id, String pass) {
+        Optional<Usuario> userOptional = usuarioRepository.findById(id);
 
-        if(useroptiona.isPresent()){
-            Usuario user = useroptiona.get();
-            user.setPass(pass);
+        if (userOptional.isPresent()) {
+            Usuario user = userOptional.get();
+
             usuarioRepository.save(user);
         }
     }
@@ -159,5 +171,23 @@ public class UsuarioServiceImpl implements UsuarioService {
         usuario.getRoles().remove(rol);
         usuarioRepository.save(usuario);
     }
+
+    @Override
+    public UserDetails obtenerUserCorreo(String correo) throws UsernameNotFoundException {
+        Usuario usuario = usuarioRepository.findByCorreo(correo)
+            .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + correo));
+        
+        Set<GrantedAuthority> authorities = usuario.getRoles().stream()
+            .map(role -> new SimpleGrantedAuthority(role.getNombreRol())) // Usar el nombre del rol
+            .collect(Collectors.toSet());
+
+        return new org.springframework.security.core.userdetails.User(
+            usuario.getCorreo(),
+            usuario.getPass(),
+            authorities
+        );
+    }
+
+
 
 }

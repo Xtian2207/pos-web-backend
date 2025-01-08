@@ -13,13 +13,14 @@ import java.io.IOException;
 import jakarta.servlet.ServletException;
 
 @Component
-public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint{
+public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     @Override
     public void commence(HttpServletRequest request, 
-                        HttpServletResponse response, 
-                        AuthenticationException authenticationException) throws IOException, ServletException 
-    {
-        response.sendError(jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED, authenticationException.getMessage());
+                         HttpServletResponse response, 
+                         AuthenticationException authenticationException) throws IOException, ServletException {
+        response.setContentType("application/json");
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.getWriter().write("{\"error\": \"Correo electrónico o contraseña inválidos\"}");
     }
 }

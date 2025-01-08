@@ -62,5 +62,10 @@ public class GlobalExceptionHandler {
         }
         return ResponseEntity.internalServerError().body("Error: Se produjo un error inesperado.");
     }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<String> handleInvalidCredentialsException(InvalidCredentialsException ex){
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
    
 }

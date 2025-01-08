@@ -28,7 +28,6 @@ public class AuthController {
 
         JwtAuthResponse jwtAuthResponse = new JwtAuthResponse();
         jwtAuthResponse.setAccessToken(token);
-
         return new ResponseEntity<>(jwtAuthResponse, HttpStatus.OK);
     }
 

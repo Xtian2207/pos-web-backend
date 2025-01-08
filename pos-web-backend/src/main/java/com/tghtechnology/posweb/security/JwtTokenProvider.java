@@ -49,10 +49,10 @@ public class JwtTokenProvider {
 
     public String getUsername(String token){
         return Jwts.parser()
-                .setSigningKey(key()) // Establece la clave de firma
+                .verifyWith((SecretKey)key()) // Establece la clave de firma
                 .build()
-                .parseClaimsJws(token) // Analiza el token JWT
-                .getBody()  // Obtiene el cuerpo (claims)
+                .parseSignedClaims(token) // Analiza el token JWT
+                .getPayload()  // Obtiene el cuerpo (claims)
                 .getSubject(); // Devuelve el 'subject' que contiene el nombre de usuario
     }
     
@@ -60,9 +60,9 @@ public class JwtTokenProvider {
     public boolean validateToken(String token){
         try {
             Jwts.parser()
-                    .setSigningKey(key()) // Establece la clave de firma
+                    .verifyWith((SecretKey)key()) // Establece la clave de firma
                     .build()
-                    .parseClaimsJws(token); // Verifica el token y lo analiza
+                    .parse(token); // Verifica el token y lo analiza
             return true; // Si no se lanza excepción, el token es válido
         } catch (ExpiredJwtException e) {
             System.out.println("Token expirado");

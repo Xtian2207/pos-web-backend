@@ -3,6 +3,7 @@ package com.tghtechnology.posweb.security;
 
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,9 +19,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.tghtechnology.posweb.exceptions.CustomAuthenticationFailureHandler;
+
 @Configuration
 @EnableMethodSecurity
 @AllArgsConstructor
+@ComponentScan(basePackages = {"com.tghtechnology.posweb", "com.tghtechnology.posweb.security"})
 public class SpringSecurityConfig {
 
     private UserDetailsService userDetailsService;
@@ -29,11 +33,14 @@ public class SpringSecurityConfig {
 
     private JwtAuthenticationFilter authenticationFilter;
 
+    private CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
+
     @Bean
-    public static PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
@@ -57,7 +64,7 @@ public class SpringSecurityConfig {
 
         return http.build();
     }
-
+    
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
