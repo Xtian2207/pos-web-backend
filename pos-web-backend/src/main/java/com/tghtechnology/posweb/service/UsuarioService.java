@@ -3,12 +3,11 @@ package com.tghtechnology.posweb.service;
 import com.tghtechnology.posweb.data.dto.RolDto;
 import com.tghtechnology.posweb.data.dto.UserCreateDTO;
 import com.tghtechnology.posweb.data.dto.UsuarioDto;
-import com.tghtechnology.posweb.data.entities.Usuario;
 
 import java.util.List;
 import java.util.Set;
 
-import org.springframework.security.core.userdetails.UserDetails;
+
 
 
 public interface UsuarioService {
@@ -40,5 +39,4 @@ public interface UsuarioService {
 
     void eliminarRol(Long idUsuario, Long idRol);
 
-    UserDetails obtenerUserCorreo(String correo);
 }

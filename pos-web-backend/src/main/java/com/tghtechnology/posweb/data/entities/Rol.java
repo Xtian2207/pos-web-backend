@@ -31,7 +31,7 @@ public class Rol {
     @PreUpdate
     private void normalizarRol(){
         if(nombreRol !=null){
-            nombreRol = nombreRol.toLowerCase();
+            nombreRol = nombreRol.toUpperCase();
         }
     }
 

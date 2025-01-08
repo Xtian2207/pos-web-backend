@@ -1,5 +1,9 @@
 package com.tghtechnology.posweb.data.dto;
 
+import java.util.Set;
+
+import com.tghtechnology.posweb.data.entities.Rol;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -26,10 +30,12 @@ public class UserCreateDTO {
     private String correo;
     
     @NotNull(message = "La contraseña no puede ser nula")
-    @Size(min = 8, max = 60, message = "La contraseña debe tener al menos 8 caracteres")
+    @Size(min = 8, max = 100, message = "La contraseña debe tener al menos 8 caracteres")
     @Pattern(regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[@#$%^&+=]).{8,}$", message = "La contraseña debe contener al menos una letra mayúscula, una minúscula, un número y un carácter especial")
     private String pass;
     
     @NotBlank(message = "Tiene que ser uno de los estados definidos -- ACTIVO O INACTIVO")
     private String estado;
+
+    private Set<RolDto> roles;
 }

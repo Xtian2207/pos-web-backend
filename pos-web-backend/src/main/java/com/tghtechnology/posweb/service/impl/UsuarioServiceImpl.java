@@ -13,19 +13,9 @@ import com.tghtechnology.posweb.data.repository.UsuarioRepository;
 import com.tghtechnology.posweb.service.UsuarioService;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -46,11 +36,8 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Autowired
     private RolMapper rolMapper;
 
-    
     @Autowired
-    @Lazy
-    private PasswordEncoder passwordEncoder;
-
+    private RolServiceImpl rolServiceImpl;
 
     @Override
     public List<UsuarioDto> obtenerUsuarios(){
@@ -59,7 +46,6 @@ public class UsuarioServiceImpl implements UsuarioService {
         return usuarios.stream()
                     .map(usuarioMapper::toDto)
                     .collect(Collectors.toList());
-
     }
 
     @Override
@@ -69,15 +55,38 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     public void ingresarUsuario(UserCreateDTO userCtr) {
-        if (userCtr == null) {
-            throw new IllegalArgumentException("El usuario no puede ser nulo");
-        }
-        userCtr.setPass(passwordEncoder.encode(userCtr.getPass()));
-        Usuario user = usuarioMapper.toEntityCreate(userCtr);
-
-
-        usuarioRepository.save(user);
+    if (userCtr == null) {
+        throw new IllegalArgumentException("El usuario no puede ser nulo");
     }
+    // Rol por defecto
+    String rolDefect = "USER";
+
+    Set<RolDto> roles = userCtr.getRoles();
+    
+    if (roles == null || roles.isEmpty()) {
+        // Si no se proporcionan roles, asignar el rol por defecto
+        if (!rolServiceImpl.existeRolName(rolDefect)) {
+            RolDto rolDefecto = new RolDto();
+            rolDefecto.setNombreRol(rolDefect);
+            rolServiceImpl.ingresarRol(rolDefecto);
+        }
+        // Obtener el rol por defecto y asignarlo
+        RolDto rolDefecto = rolServiceImpl.obtenerRolByName(rolDefect);
+        roles = new HashSet<>();
+        roles.add(rolDefecto);
+        userCtr.setRoles(roles);
+    } else {
+        // Verificar que los roles proporcionados existan
+        for (RolDto rolDto : roles) {
+            if (!rolServiceImpl.existeRol(rolDto.getIdRol())) {
+                throw new IllegalArgumentException("El rol con ID " + rolDto.getIdRol() + " no existe.");
+            }
+        }
+    }
+
+    Usuario user = usuarioMapper.toEntityCreate(userCtr);
+    usuarioRepository.save(user);
+}
 
 
 
@@ -170,22 +179,6 @@ public class UsuarioServiceImpl implements UsuarioService {
 
         usuario.getRoles().remove(rol);
         usuarioRepository.save(usuario);
-    }
-
-    @Override
-    public UserDetails obtenerUserCorreo(String correo) throws UsernameNotFoundException {
-        Usuario usuario = usuarioRepository.findByCorreo(correo)
-            .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + correo));
-        
-        Set<GrantedAuthority> authorities = usuario.getRoles().stream()
-            .map(role -> new SimpleGrantedAuthority(role.getNombreRol())) // Usar el nombre del rol
-            .collect(Collectors.toSet());
-
-        return new org.springframework.security.core.userdetails.User(
-            usuario.getCorreo(),
-            usuario.getPass(),
-            authorities
-        );
     }
 
 
