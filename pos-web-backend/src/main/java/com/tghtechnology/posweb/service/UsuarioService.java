@@ -4,9 +4,10 @@ import com.tghtechnology.posweb.data.dto.RolDto;
 import com.tghtechnology.posweb.data.dto.UserCreateDTO;
 import com.tghtechnology.posweb.data.dto.UsuarioDto;
 
-
 import java.util.List;
 import java.util.Set;
+
+
 
 
 public interface UsuarioService {
@@ -37,4 +38,5 @@ public interface UsuarioService {
     void agregarRol(Long id, Long rol);
 
     void eliminarRol(Long idUsuario, Long idRol);
+
 }

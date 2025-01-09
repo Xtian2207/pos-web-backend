@@ -18,4 +18,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     Set<Rol> findRolesByUsuarioId(@Param("idUsuario") Long idUsuario);
     
     Optional<Usuario> findByCorreo(String correo);
+
+    public Boolean existsByCorreo(String correo);
 }

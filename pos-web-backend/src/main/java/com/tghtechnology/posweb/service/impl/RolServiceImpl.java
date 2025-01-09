@@ -79,6 +79,15 @@ public class RolServiceImpl implements RolService {
         return rolRepository.existsById(idRol);
     }
 
-}
+    @Override
+    public Boolean existeRolName(String name){
+        return rolRepository.existsByNombreRol(name);
+    }
 
+    @Override
+    public RolDto obtenerRolByName(String name){
+        RolDto rol = rolMapper.toDto(rolRepository.findRolByName(name).orElse(null));
+        return rol;
+    }
+}
 

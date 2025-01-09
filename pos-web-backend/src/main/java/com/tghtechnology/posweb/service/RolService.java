@@ -19,4 +19,8 @@ public interface RolService {
     Rol obtenerRolById(Long id);
 
     Boolean existeRol(Long id);
+
+    Boolean existeRolName(String rolNombre);
+
+    RolDto obtenerRolByName(String name);
 }
