@@ -55,40 +55,38 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     public void ingresarUsuario(UserCreateDTO userCtr) {
-    if (userCtr == null) {
-        throw new IllegalArgumentException("El usuario no puede ser nulo");
-    }
-    // Rol por defecto
-    String rolDefect = "USER";
-
-    Set<RolDto> roles = userCtr.getRoles();
-    
-    if (roles == null || roles.isEmpty()) {
-        // Si no se proporcionan roles, asignar el rol por defecto
-        if (!rolServiceImpl.existeRolName(rolDefect)) {
-            RolDto rolDefecto = new RolDto();
-            rolDefecto.setNombreRol(rolDefect);
-            rolServiceImpl.ingresarRol(rolDefecto);
+        if (userCtr == null) {
+            throw new IllegalArgumentException("El usuario no puede ser nulo");
         }
-        // Obtener el rol por defecto y asignarlo
-        RolDto rolDefecto = rolServiceImpl.obtenerRolByName(rolDefect);
-        roles = new HashSet<>();
-        roles.add(rolDefecto);
-        userCtr.setRoles(roles);
-    } else {
-        // Verificar que los roles proporcionados existan
-        for (RolDto rolDto : roles) {
-            if (!rolServiceImpl.existeRol(rolDto.getIdRol())) {
-                throw new IllegalArgumentException("El rol con ID " + rolDto.getIdRol() + " no existe.");
+        // Rol por defecto
+        String rolDefect = "USER";
+
+        Set<RolDto> roles = userCtr.getRoles();
+    
+        if (roles == null || roles.isEmpty()) {
+ 
+            if (!rolServiceImpl.existeRolName(rolDefect)) {
+                RolDto rolDefecto = new RolDto();
+                rolDefecto.setNombreRol(rolDefect);
+                rolServiceImpl.ingresarRol(rolDefecto);
+            }
+
+            RolDto rolDefecto = rolServiceImpl.obtenerRolByName(rolDefect);
+            roles = new HashSet<>();
+            roles.add(rolDefecto);
+            userCtr.setRoles(roles);
+        } else {
+
+            for (RolDto rolDto : roles) {
+                if (!rolServiceImpl.existeRol(rolDto.getIdRol())) {
+                    throw new IllegalArgumentException("El rol con ID " + rolDto.getIdRol() + " no existe.");
+                }
             }
         }
+
+        Usuario user = usuarioMapper.toEntityCreate(userCtr);
+        usuarioRepository.save(user);
     }
-
-    Usuario user = usuarioMapper.toEntityCreate(userCtr);
-    usuarioRepository.save(user);
-}
-
-
 
     @Override
     public void actualizarUsuario(UsuarioDto userD) {
