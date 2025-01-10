@@ -6,13 +6,11 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import com.tghtechnology.posweb.data.entities.Cliente;
 import com.tghtechnology.posweb.data.entities.TipoDocumento;
 import com.tghtechnology.posweb.data.repository.ClienteRepository;
 import com.tghtechnology.posweb.service.ClienteService;
 
-import io.swagger.v3.oas.annotations.servers.Server;
 
 @Service
 public class ClienteServiceImpl implements ClienteService {
@@ -32,11 +30,15 @@ public class ClienteServiceImpl implements ClienteService {
     }
 
     @Override
-    public void ingresarCliente(Cliente cliente){
-        if(cliente.getIdCliente() == null){
-            if(cliente.validarNumeroDocumento()){
-                clienteRepository.save(cliente);
-            }
+    public void ingresarCliente(Cliente cliente) {
+        if (cliente == null) {
+            throw new IllegalArgumentException("El cliente no puede ser nulo");
+        }
+        try {
+            clienteRepository.save(cliente);
+        } catch (Exception e) {
+            // Lanzar una excepción personalizada o una excepción genérica
+            throw new RuntimeException("Error al guardar el cliente", e);
         }
     }
 
