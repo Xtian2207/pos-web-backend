@@ -1,13 +1,15 @@
 package com.tghtechnology.posweb.service.impl;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.tghtechnology.posweb.data.dto.ClienteDTO;
 import com.tghtechnology.posweb.data.entities.Cliente;
 import com.tghtechnology.posweb.data.entities.TipoDocumento;
+import com.tghtechnology.posweb.data.mapper.ClienteMapper;
 import com.tghtechnology.posweb.data.repository.ClienteRepository;
 import com.tghtechnology.posweb.service.ClienteService;
 
@@ -18,6 +20,9 @@ public class ClienteServiceImpl implements ClienteService {
     @Autowired
     private ClienteRepository clienteRepository;
 
+    @Autowired
+    private ClienteMapper clienteMapper;
+
     @Override
     public List<Cliente> listaCliente(){
         List<Cliente> clientes = clienteRepository.findAll();
@@ -25,8 +30,9 @@ public class ClienteServiceImpl implements ClienteService {
     }
 
     @Override
-    public Cliente obtenerDatosCliente(Long id){
-        return clienteRepository.findById(id).orElse(null);
+    public ClienteDTO obtenerDatosCliente(Long id){
+        Cliente cliente = clienteRepository.findById(id).orElse(null);
+        return clienteMapper.toDto(cliente);
     }
 
     @Override

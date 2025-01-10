@@ -45,4 +45,8 @@ public class Venta {
     @Column(name = "metodo_pago", nullable = false)
     private MetodoPago metodoPago;
 
+    @ManyToOne
+    @JoinColumn(name = "id_cliente", referencedColumnName = "idCliente", nullable = true)
+    private Cliente cliente;
+
 }

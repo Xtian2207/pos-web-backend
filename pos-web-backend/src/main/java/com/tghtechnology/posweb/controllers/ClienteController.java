@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.tghtechnology.posweb.data.dto.ClienteDTO;
 import com.tghtechnology.posweb.data.dto.UserCreateDTO;
 import com.tghtechnology.posweb.data.entities.Cliente;
 import com.tghtechnology.posweb.data.entities.TipoDocumento;
@@ -53,8 +54,8 @@ public class ClienteController {
 
     // obtener cliente con su ID
     @GetMapping("/{id}")
-    public ResponseEntity<Cliente> obtenerClienteId(@PathVariable Long id){
-        Cliente cliente = clienteServiceImpl.obtenerDatosCliente(id);
+    public ResponseEntity<ClienteDTO> obtenerClienteId(@PathVariable Long id){
+        ClienteDTO cliente = clienteServiceImpl.obtenerDatosCliente(id);
         if (cliente !=null) {
             return new ResponseEntity<>(cliente, HttpStatus.OK);
         } else {

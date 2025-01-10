@@ -1,5 +1,6 @@
 package com.tghtechnology.posweb.service;
 
+import com.tghtechnology.posweb.data.dto.ClienteDTO;
 import com.tghtechnology.posweb.data.entities.Cliente;
 import com.tghtechnology.posweb.data.entities.TipoDocumento;
 
@@ -9,7 +10,7 @@ public interface ClienteService {
 
     List<Cliente> listaCliente();
     
-    Cliente obtenerDatosCliente(Long idcliente);
+    ClienteDTO obtenerDatosCliente(Long idcliente);
 
     void ingresarCliente(Cliente cliente);
 
