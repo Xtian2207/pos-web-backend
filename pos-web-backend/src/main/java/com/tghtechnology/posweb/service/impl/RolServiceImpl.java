@@ -86,9 +86,8 @@ public class RolServiceImpl implements RolService {
 
     @Override
     public RolDto obtenerRolByName(String name){
-        RolDto rol = rolMapper.toDto(rolRepository.findRolByName(name));
+        RolDto rol = rolMapper.toDto(rolRepository.findRolByName(name).orElse(null));
         return rol;
     }
 }
-
 

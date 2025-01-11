@@ -1,4 +1,4 @@
-package com.tghtechnology.posweb;
+package com.tghtechnology.posweb.controllers;
 
 import com.tghtechnology.posweb.data.entities.Rol;
 import com.tghtechnology.posweb.service.impl.RolServiceImpl;

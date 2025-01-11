@@ -1,7 +1,11 @@
 package com.tghtechnology.posweb.controllers;
 
 import com.tghtechnology.posweb.data.dto.CategoriaDTO;
+import com.tghtechnology.posweb.exceptions.ResourceNotFoundException;
 import com.tghtechnology.posweb.service.CategoriaService;
+
+import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +22,7 @@ public class CategoriaController {
     private CategoriaService categoriaService;
 
     @PostMapping
-    public ResponseEntity<CategoriaDTO> crearCategoria(@RequestBody CategoriaDTO categoriaDTO) {
+    public ResponseEntity<CategoriaDTO> crearCategoria(@Valid @RequestBody CategoriaDTO categoriaDTO) {
         CategoriaDTO nuevaCategoria = categoriaService.crearCategoria(categoriaDTO);
         return new ResponseEntity<>(nuevaCategoria, HttpStatus.CREATED);
     }
@@ -31,29 +35,35 @@ public class CategoriaController {
 
     @GetMapping("/{idCategoria}")
     public ResponseEntity<CategoriaDTO> obtenerCategoriaPorId(@PathVariable Long idCategoria) {
-        Optional<CategoriaDTO> categoria = categoriaService.obtenerCategoriaPorId(idCategoria);
-        return categoria.map(ResponseEntity::ok)
-                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        Optional<CategoriaDTO> categoriaOptional = categoriaService.obtenerCategoriaPorId(idCategoria);
+        if (categoriaOptional.isPresent()) {
+            return new ResponseEntity<>(categoriaOptional.get(), HttpStatus.OK);
+        } else {
+            throw new ResourceNotFoundException("Categoría no encontrada");
+        }
     }
 
     @PutMapping("/{idCategoria}")
     public ResponseEntity<CategoriaDTO> actualizarCategoria(@PathVariable Long idCategoria,
-            @RequestBody CategoriaDTO categoriaDTO) {
-        CategoriaDTO categoriaActualizada = categoriaService.actualizarCategoria(idCategoria, categoriaDTO);
-        if (categoriaActualizada != null) {
-            return new ResponseEntity<>(categoriaActualizada, HttpStatus.OK);
-        } else {
+            @Valid @RequestBody CategoriaDTO categoriaDTO) {
+        try {
+            CategoriaDTO categoriaActualizada = categoriaService.actualizarCategoria(idCategoria, categoriaDTO);
+            if (categoriaActualizada != null) {
+                return new ResponseEntity<>(categoriaActualizada, HttpStatus.OK);
+            } else {
+                throw new ResourceNotFoundException("Categoría no encontrada para actualizar");
+            }
+        } catch (ResourceNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
     @DeleteMapping("/{idCategoria}")
     public ResponseEntity<Void> eliminarCategoria(@PathVariable Long idCategoria) {
-        Optional<CategoriaDTO> categoria = categoriaService.obtenerCategoriaPorId(idCategoria);
-        if (categoria.isPresent()) {
+        try {
             categoriaService.eliminarCategoria(idCategoria);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } else {
+        } catch (ResourceNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }

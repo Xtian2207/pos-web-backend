@@ -1,8 +1,10 @@
 package com.tghtechnology.posweb.services;
 
+import com.tghtechnology.posweb.data.dto.ProductoDTO;
 import com.tghtechnology.posweb.data.entities.Categoria;
 import com.tghtechnology.posweb.data.entities.EstadoProducto;
 import com.tghtechnology.posweb.data.entities.Producto;
+import com.tghtechnology.posweb.data.mapper.ProductoMapper;
 import com.tghtechnology.posweb.data.repository.CategoriaRepository;
 import com.tghtechnology.posweb.data.repository.ProductoRepository;
 import com.tghtechnology.posweb.service.impl.ProductoServiceImpl;
@@ -13,12 +15,19 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 class ProductoServiceTest {
+
+    @InjectMocks
+    private ProductoServiceImpl productoService;
 
     @Mock
     private ProductoRepository productoRepository;
@@ -26,167 +35,159 @@ class ProductoServiceTest {
     @Mock
     private CategoriaRepository categoriaRepository;
 
-    @InjectMocks
-    private ProductoServiceImpl productoService;
+    @Mock
+    private ProductoMapper productoMapper;
 
     private Producto producto;
+    private ProductoDTO productoDTO;
     private Categoria categoria;
 
-    /* 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        categoria = new Categoria(1L, "Categoria 1");
-        producto = new Producto(1L, "Producto 1", "Descripcion", 100.0, 10, EstadoProducto.DISPONIBLE, categoria);
+
+        categoria = new Categoria();
+        categoria.setIdCategoria(1L);
+        categoria.setNombreCategoria("Electrónicos");
+
+        producto = new Producto();
+        producto.setIdProducto(1L);
+        producto.setNombreProducto("Laptop");
+        producto.setDescripcion("Laptop de última generación");
+        producto.setPrecio(1200.0);
+        producto.setCantidad(10);
+        producto.setEstado(EstadoProducto.DISPONIBLE);
+        producto.setCategoria(categoria);
+
+        productoDTO = new ProductoDTO();
+        productoDTO.setIdProducto(1L);
+        productoDTO.setNombreProducto("Laptop");
+        productoDTO.setDescripcion("Laptop de última generación");
+        productoDTO.setPrecio(1200.0);
+        productoDTO.setCantidad(10);
+        productoDTO.setEstado(EstadoProducto.DISPONIBLE);
+        productoDTO.setCategoria(categoria);
     }
 
     @Test
-    void registrarProducto_success() throws Exception {
-        when(categoriaRepository.findById(1L)).thenReturn(Optional.of(categoria));
-        when(productoRepository.save(producto)).thenReturn(producto);
+    void registrarProducto() {
+        when(categoriaRepository.findById(anyLong())).thenReturn(Optional.of(categoria));
+        when(productoMapper.toEntity(any(ProductoDTO.class))).thenReturn(producto);
+        when(productoRepository.save(any(Producto.class))).thenReturn(producto);
+        when(productoMapper.toDTO(any(Producto.class))).thenReturn(productoDTO);
 
-        Producto result = productoService.registrarProducto(1L, producto);
+        ProductoDTO resultado = productoService.registrarProducto(1L, productoDTO);
 
-        assertNotNull(result);
-        assertEquals("Producto 1", result.getNombreProducto());
-        verify(categoriaRepository, times(1)).findById(1L);
-        verify(productoRepository, times(1)).save(producto);
+        assertNotNull(resultado);
+        assertEquals("Laptop", resultado.getNombreProducto());
+        verify(categoriaRepository).findById(anyLong());
+        verify(productoRepository).save(any(Producto.class));
     }
 
     @Test
-    void registrarProducto_categoriaNoEncontrada() {
-        when(categoriaRepository.findById(1L)).thenReturn(Optional.empty());
-
-        Exception exception = assertThrows(Exception.class, () -> {
-            productoService.registrarProducto(1L, producto);
-        });
-
-        assertEquals("Categoría con ID 1 no encontrada", exception.getMessage());
-        verify(categoriaRepository, times(1)).findById(1L);
-        verify(productoRepository, times(0)).save(producto);
-    }
-
-    @Test
-    void listarProductos_success() {
+    void listarProductos() {
         when(productoRepository.findAll()).thenReturn(Arrays.asList(producto));
+        when(productoMapper.toDTO(any(Producto.class))).thenReturn(productoDTO);
 
-        var productos = productoService.listarProductos();
+        List<ProductoDTO> resultado = productoService.listarProductos();
 
-        assertNotNull(productos);
-        assertFalse(productos.isEmpty());
-        assertEquals(1, productos.size());
+        assertNotNull(resultado);
+        assertEquals(1, resultado.size());
+        verify(productoRepository).findAll();
     }
 
     @Test
-    void buscarPorNombre_found() {
-        when(productoRepository.findByNombreProducto("Producto 1")).thenReturn(Optional.of(producto));
+    void buscarPorNombre() {
+        when(productoRepository.findByNombreProducto(anyString())).thenReturn(Optional.of(producto));
+        when(productoMapper.toDTO(any(Producto.class))).thenReturn(productoDTO);
 
-        Optional<Producto> result = productoService.buscarPorNombre("Producto 1");
+        Optional<ProductoDTO> resultado = productoService.buscarPorNombre("Laptop");
 
-        assertTrue(result.isPresent());
-        assertEquals("Producto 1", result.get().getNombreProducto());
+        assertTrue(resultado.isPresent());
+        assertEquals("Laptop", resultado.get().getNombreProducto());
+        verify(productoRepository).findByNombreProducto(anyString());
     }
 
     @Test
-    void buscarPorNombre_notFound() {
-        when(productoRepository.findByNombreProducto("Producto 2")).thenReturn(Optional.empty());
+    void buscarPorId() {
+        when(productoRepository.findByIdProducto(anyLong())).thenReturn(Optional.of(producto));
+        when(productoMapper.toDTO(any(Producto.class))).thenReturn(productoDTO);
 
-        Optional<Producto> result = productoService.buscarPorNombre("Producto 2");
+        Optional<ProductoDTO> resultado = productoService.buscarPorId(1L);
 
-        assertFalse(result.isPresent());
+        assertTrue(resultado.isPresent());
+        assertEquals(1L, resultado.get().getIdProducto());
+        verify(productoRepository).findByIdProducto(anyLong());
     }
 
     @Test
-    void buscarPorId_success() {
-        when(productoRepository.findByIdProducto(1L)).thenReturn(Optional.of(producto));
+    void actualizarProducto() {
+        when(productoRepository.findByIdProducto(anyLong())).thenReturn(Optional.of(producto));
+        when(productoRepository.save(any(Producto.class))).thenReturn(producto);
+        when(productoMapper.toDTO(any(Producto.class))).thenReturn(productoDTO);
 
-        Optional<Producto> result = productoService.buscarPorId(1L);
+        ProductoDTO resultado = productoService.actualizarProducto(1L, productoDTO);
 
-        assertTrue(result.isPresent());
-        assertEquals(1L, result.get().getIdProducto());
+        assertNotNull(resultado);
+        assertEquals("Laptop", resultado.getNombreProducto());
+        verify(productoRepository).save(any(Producto.class));
     }
 
     @Test
-    void buscarPorId_notFound() {
-        when(productoRepository.findByIdProducto(2L)).thenReturn(Optional.empty());
-
-        Optional<Producto> result = productoService.buscarPorId(2L);
-
-        assertFalse(result.isPresent());
-    }
-
-    @Test
-    void actualizarProducto_success() {
-        Producto productoActualizado = new Producto(1L, "Producto Actualizado", "Descripcion Actualizada", 150.0, 15, EstadoProducto.DISPONIBLE, categoria);
-        when(productoRepository.findByIdProducto(1L)).thenReturn(Optional.of(producto));
-        when(productoRepository.save(producto)).thenReturn(productoActualizado);
-
-        Producto result = productoService.actualizarProducto(1L, productoActualizado);
-
-        assertNotNull(result);
-        assertEquals("Producto Actualizado", result.getNombreProducto());
-        assertEquals(150.0, result.getPrecio());
-    }
-
-    @Test
-    void actualizarProducto_notFound() {
-        Producto productoActualizado = new Producto(2L, "Producto Inexistente", "Descripcion", 100.0, 10, EstadoProducto.DISPONIBLE, categoria);
-        when(productoRepository.findByIdProducto(2L)).thenReturn(Optional.empty());
-
-        Producto result = productoService.actualizarProducto(2L, productoActualizado);
-
-        assertNull(result);
-    }
-
-    @Test
-    void eliminarProducto_success() {
-        doNothing().when(productoRepository).deleteById(1L);
+    void eliminarProducto() {
+        when(productoRepository.findById(anyLong())).thenReturn(Optional.of(producto));
 
         productoService.eliminarProducto(1L);
 
-        verify(productoRepository, times(1)).deleteById(1L);
+        verify(productoRepository).deleteById(anyLong());
     }
 
     @Test
-    void cambiarEstadoProducto_success() {
+    void cambiarEstadoProducto() {
+        // Configuración inicial de mocks
         when(productoRepository.findByIdProducto(1L)).thenReturn(Optional.of(producto));
-        when(productoRepository.save(producto)).thenReturn(producto);
+        when(productoRepository.save(any(Producto.class))).thenAnswer(invocation -> {
+            Producto productoActualizado = invocation.getArgument(0);
+            producto.setEstado(productoActualizado.getEstado()); // Actualiza el estado del producto original
+            return productoActualizado;
+        });
+        when(productoMapper.toDTO(any(Producto.class))).thenAnswer(invocation -> {
+            Producto productoMock = invocation.getArgument(0);
+            productoDTO.setEstado(productoMock.getEstado()); // Refleja el estado actualizado en el DTO
+            return productoDTO;
+        });
 
-        Producto result = productoService.cambiarEstadoProducto(1L, EstadoProducto.NO_DISPONIBLE);
+        // Ejecución del método bajo prueba
+        ProductoDTO resultado = productoService.cambiarEstadoProducto(1L, EstadoProducto.NO_DISPONIBLE);
 
-        assertNotNull(result);
-        assertEquals(EstadoProducto.NO_DISPONIBLE, result.getEstado());
+        // Verificaciones
+        assertNotNull(resultado); // Asegurarse de que el resultado no sea nulo
+        assertEquals(EstadoProducto.NO_DISPONIBLE, resultado.getEstado()); // Verificar el cambio de estado
+        verify(productoRepository).save(any(Producto.class)); // Verificar que se guardó el producto
+        verify(productoMapper).toDTO(any(Producto.class)); // Verificar que se mapeara el producto a DTO
     }
 
     @Test
-    void cambiarEstadoProducto_notFound() {
-        when(productoRepository.findByIdProducto(2L)).thenReturn(Optional.empty());
+    void obtenerProductosPorEstado() {
+        when(productoRepository.findByEstado(any(EstadoProducto.class))).thenReturn(Arrays.asList(producto));
+        when(productoMapper.toDTO(any(Producto.class))).thenReturn(productoDTO);
 
-        Producto result = productoService.cambiarEstadoProducto(2L, EstadoProducto.NO_DISPONIBLE);
+        List<ProductoDTO> resultado = productoService.obtenerProductosPorEstado(EstadoProducto.DISPONIBLE);
 
-        assertNull(result);
+        assertNotNull(resultado);
+        assertEquals(1, resultado.size());
+        verify(productoRepository).findByEstado(any(EstadoProducto.class));
     }
 
     @Test
-    void obtenerProductosPorEstado_success() {
-        when(productoRepository.findByEstado(EstadoProducto.DISPONIBLE)).thenReturn(Arrays.asList(producto));
+    void obtenerProductosPorCategoria() {
+        when(productoRepository.findByCategoriaIdCategoria(anyLong())).thenReturn(Arrays.asList(producto));
+        when(productoMapper.toDTO(any(Producto.class))).thenReturn(productoDTO);
 
-        var productos = productoService.obtenerProductosPorEstado(EstadoProducto.DISPONIBLE);
+        List<ProductoDTO> resultado = productoService.obtenerProductosPorCategoria(1L);
 
-        assertNotNull(productos);
-        assertFalse(productos.isEmpty());
-        assertEquals(1, productos.size());
+        assertNotNull(resultado);
+        assertEquals(1, resultado.size());
+        verify(productoRepository).findByCategoriaIdCategoria(anyLong());
     }
-
-    @Test
-    void obtenerProductosPorCategoria_success() {
-        when(productoRepository.findByCategoriaIdCategoria(1L)).thenReturn(Arrays.asList(producto));
-
-        var productos = productoService.obtenerProductosPorCategoria(1L);
-
-        assertNotNull(productos);
-        assertFalse(productos.isEmpty());
-        assertEquals(1, productos.size());
-    }
-    */
 }
