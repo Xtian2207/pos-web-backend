@@ -1,12 +1,15 @@
 package com.tghtechnology.posweb.service.impl;
 
+import com.tghtechnology.posweb.data.dto.ClienteDTO;
 import com.tghtechnology.posweb.data.dto.DetalleVentaDTO;
 import com.tghtechnology.posweb.data.dto.VentaDTO;
+import com.tghtechnology.posweb.data.entities.Cliente;
 import com.tghtechnology.posweb.data.entities.DetalleVenta;
 import com.tghtechnology.posweb.data.entities.MetodoPago;
 import com.tghtechnology.posweb.data.entities.Producto;
 import com.tghtechnology.posweb.data.entities.Usuario;
 import com.tghtechnology.posweb.data.entities.Venta;
+import com.tghtechnology.posweb.data.mapper.ClienteMapper;
 import com.tghtechnology.posweb.data.mapper.VentaMapper;
 import com.tghtechnology.posweb.data.repository.DetalleVentaRepository;
 import com.tghtechnology.posweb.data.repository.ProductoRepository;
@@ -39,8 +42,15 @@ public class VentaServiceImpl implements VentaService {
     private ProductoRepository productoRepository;
 
     @Autowired
+    private ClienteServiceImpl clienteServiceImpl;
+
+    @Autowired
     private VentaMapper ventaMapper;
 
+    @Autowired
+    private ClienteMapper clienteMapper;
+
+    
     @Override
     public VentaDTO registrarVenta(VentaDTO ventaDTO) {
         // Validaciones iniciales
@@ -54,10 +64,28 @@ public class VentaServiceImpl implements VentaService {
             throw new IllegalArgumentException("Usuario no encontrado con ID: " + ventaDTO.getIdUsuario());
         }
 
+        Cliente cliente = null;
+        if (ventaDTO.getCliente().isPresent()) {
+        
+            cliente = ventaDTO.getCliente().orElse(null);
+            String doc = cliente.getDocument();
+
+            if(clienteServiceImpl.existeClienteDoc(doc)){
+                // actualiza el cliente
+                clienteServiceImpl.editarCliente(cliente.getIdCliente(), cliente);
+            
+            }else{
+                // crea un nuevo cliente
+                clienteServiceImpl.ingresarCliente(cliente);
+            }
+        }
+
         Usuario usuario = usuarioExistente.get();
         Venta venta = new Venta();
         venta.setUsuario(usuario);
         venta.setDetalles(new ArrayList<DetalleVenta>()); // Asegúrate de inicializar la lista de detalles.
+
+        venta.setCliente(cliente);
 
         // Procesar los detalles de la venta
         double totalVenta = 0;
@@ -110,6 +138,8 @@ public class VentaServiceImpl implements VentaService {
         for (DetalleVenta detalle : venta.getDetalles()) {
             detalleVentaRepository.save(detalle);
         }
+        
+        // asignamos null al cliente por ser compra rapida
 
         // Mapeo de la entidad 'Venta' a DTO 'VentaDTO'
         return ventaMapper.toDTO(ventaGuardada); // Aquí se convierte la venta a un DTO antes de devolverlo

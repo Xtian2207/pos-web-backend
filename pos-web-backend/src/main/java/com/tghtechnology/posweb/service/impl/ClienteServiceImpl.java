@@ -71,9 +71,20 @@ public class ClienteServiceImpl implements ClienteService {
     }
 
     @Override
+    public ClienteDTO buscarClienteByDoc(String doc){
+        Cliente cliente =  clienteRepository.obtenerClienteByDocu(doc);        
+        return clienteMapper.toDto(cliente);
+    }
+
+    @Override
     public List<TipoDocumento> tiposDocumentos(){
         TipoDocumento[] documentos = TipoDocumento.values();
 
         return Arrays.asList(documentos);
+    }
+
+    @Override
+    public Boolean existeClienteDoc(String cliente){
+        return clienteRepository.findByDocument(cliente);
     }
 }

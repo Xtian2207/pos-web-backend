@@ -21,4 +21,8 @@ public interface ClienteService {
     Boolean existecliente(Long cliente);
 
     List<TipoDocumento> tiposDocumentos();
+
+    ClienteDTO buscarClienteByDoc(String doc);
+
+    Boolean existeClienteDoc(String doc);
 }

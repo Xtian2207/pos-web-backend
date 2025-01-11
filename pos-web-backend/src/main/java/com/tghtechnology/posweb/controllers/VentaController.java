@@ -1,5 +1,6 @@
 package com.tghtechnology.posweb.controllers;
 
+import com.tghtechnology.posweb.data.dto.ClienteDTO;
 import com.tghtechnology.posweb.data.dto.VentaDTO;
 import com.tghtechnology.posweb.service.VentaService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,8 @@ public class VentaController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
+
+    
 
     @GetMapping("/listar")
     public ResponseEntity<List<VentaDTO>> listarVentas() {

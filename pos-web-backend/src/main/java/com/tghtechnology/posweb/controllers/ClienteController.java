@@ -14,9 +14,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.tghtechnology.posweb.data.dto.ClienteDTO;
-import com.tghtechnology.posweb.data.dto.UserCreateDTO;
 import com.tghtechnology.posweb.data.entities.Cliente;
 import com.tghtechnology.posweb.data.entities.TipoDocumento;
 import com.tghtechnology.posweb.service.impl.ClienteServiceImpl;
@@ -68,9 +66,9 @@ public class ClienteController {
     public ResponseEntity<String> actualizarCliente(@PathVariable Long id, @Valid @RequestBody Cliente cliente){
         if(clienteServiceImpl.existecliente(id)){
             clienteServiceImpl.editarCliente(id, cliente);
-            return new ResponseEntity<>("Usuario actualizado correctamente", HttpStatus.OK);
+            return new ResponseEntity<>("Cliente actualizado correctamente", HttpStatus.OK);
         } else {
-            return new ResponseEntity<>("Usuario no encontrado", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("Cliente no encontrado", HttpStatus.NOT_FOUND);
         }
     }
 
@@ -79,9 +77,9 @@ public class ClienteController {
     public ResponseEntity<String> eliminarCliente(@PathVariable Long id) {
         if (clienteServiceImpl.existecliente(id)) {
             clienteServiceImpl.eliminarCliente(id);
-            return new ResponseEntity<>("Usuario eliminado", HttpStatus.OK);
+            return new ResponseEntity<>("Cliente eliminado", HttpStatus.OK);
         } else {
-            return new ResponseEntity<>("Usuario no encontrado", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("Cliente no encontrado", HttpStatus.NOT_FOUND);
         }
     }
 

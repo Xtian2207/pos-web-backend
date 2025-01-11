@@ -13,8 +13,6 @@ public class UsuarioMapper {
     @Autowired
     private ModelMapper modelMapper;
 
-
-
     // conversion con el dto de manejo
     public Usuario toEntity(UsuarioDto usuarioDTO){
         return modelMapper.map(usuarioDTO, Usuario.class);

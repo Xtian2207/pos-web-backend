@@ -1,6 +1,8 @@
 package com.tghtechnology.posweb.service;
 
+import com.tghtechnology.posweb.data.dto.ClienteDTO;
 import com.tghtechnology.posweb.data.dto.VentaDTO;
+import com.tghtechnology.posweb.data.entities.Cliente;
 
 import java.util.Date;
 import java.util.List;
@@ -21,5 +23,6 @@ public interface VentaService {
     List<VentaDTO> obtenerVentasPorUsuario(Long usuarioId);
 
     List<VentaDTO> obtenerVentasPorFecha(Date fechaInicio, Date fechaFin);
+
 
 }

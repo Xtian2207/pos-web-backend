@@ -47,6 +47,6 @@ public class Venta {
 
     @ManyToOne
     @JoinColumn(name = "id_cliente", referencedColumnName = "idCliente", nullable = true)
-    private Cliente cliente;
+    private Cliente cliente = null;
 
 }
