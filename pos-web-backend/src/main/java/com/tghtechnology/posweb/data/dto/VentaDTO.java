@@ -19,6 +19,6 @@ public class VentaDTO {
     private String metodoPago;
     private Date fechaVenta;
     private LocalTime horaVenta;
-    private Optional<Cliente> cliente;
+    private Cliente cliente;
 
 }

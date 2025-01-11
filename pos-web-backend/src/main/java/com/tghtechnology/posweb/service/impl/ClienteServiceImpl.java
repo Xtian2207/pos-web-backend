@@ -84,7 +84,7 @@ public class ClienteServiceImpl implements ClienteService {
     }
 
     @Override
-    public Boolean existeClienteDoc(String cliente){
+    public boolean existeClienteDoc(String cliente){
         return clienteRepository.findByDocument(cliente);
     }
 }

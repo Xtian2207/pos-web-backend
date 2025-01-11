@@ -13,5 +13,5 @@ public interface  ClienteRepository extends JpaRepository<Cliente, Long> {
     @Query("select c from Cliente c where document =: documento")
     Cliente obtenerClienteByDocu(@Param("documento") String documento);
 
-    Boolean findByDocument(String doc);
+    boolean findByDocument(String doc);
 }

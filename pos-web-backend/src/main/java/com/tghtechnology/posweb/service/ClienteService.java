@@ -24,5 +24,5 @@ public interface ClienteService {
 
     ClienteDTO buscarClienteByDoc(String doc);
 
-    Boolean existeClienteDoc(String doc);
+    boolean existeClienteDoc(String doc);
 }

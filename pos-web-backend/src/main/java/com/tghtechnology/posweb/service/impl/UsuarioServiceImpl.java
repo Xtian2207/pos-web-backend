@@ -13,6 +13,7 @@ import com.tghtechnology.posweb.data.repository.UsuarioRepository;
 import com.tghtechnology.posweb.service.UsuarioService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -38,6 +39,9 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Autowired
     private RolServiceImpl rolServiceImpl;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public List<UsuarioDto> obtenerUsuarios(){
@@ -83,7 +87,7 @@ public class UsuarioServiceImpl implements UsuarioService {
                 }
             }
         }
-
+        userCtr.setPass(passwordEncoder.encode(userCtr.getPass()));
         Usuario user = usuarioMapper.toEntityCreate(userCtr);
         usuarioRepository.save(user);
     }
@@ -143,7 +147,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 
         if (userOptional.isPresent()) {
             Usuario user = userOptional.get();
-
+            user.setPass(passwordEncoder.encode(pass));
             usuarioRepository.save(user);
         }
     }
@@ -179,6 +183,10 @@ public class UsuarioServiceImpl implements UsuarioService {
         usuarioRepository.save(usuario);
     }
 
+    @Override
+    public Boolean existeUsuarioByCorreo(String correo){
+        return usuarioRepository.existsByCorreo(correo);
+    }
 
 
 }

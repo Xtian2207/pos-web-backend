@@ -18,13 +18,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.tghtechnology.posweb.data.dto.LoginDTO;
 import com.tghtechnology.posweb.data.dto.UserCreateDTO;
-import com.tghtechnology.posweb.data.entities.EstadoUsuario;
-import com.tghtechnology.posweb.data.entities.Rol;
-import com.tghtechnology.posweb.data.entities.Usuario;
 import com.tghtechnology.posweb.data.repository.RolRepository;
-import com.tghtechnology.posweb.data.repository.UsuarioRepository;
 import com.tghtechnology.posweb.security.JWTAuthResonseDto;
 import com.tghtechnology.posweb.security.JwtTokenProvider;
+import com.tghtechnology.posweb.service.impl.UsuarioServiceImpl;
 
 import jakarta.validation.Valid;
 
@@ -36,7 +33,7 @@ public class AuthController {
     private AuthenticationManager authenticationManager;
 
     @Autowired
-    private UsuarioRepository usuarioRepository;
+    private UsuarioServiceImpl usuarioServiceImpl;
 
     @Autowired
     private RolRepository rolRepository;
@@ -61,28 +58,13 @@ public class AuthController {
     @PostMapping("/registrar")
     public ResponseEntity<?> registrarUsuario(@RequestBody @Valid UserCreateDTO userCreateDTO) {
         // Verificar si el correo ya está registrado
-        if (usuarioRepository.existsByCorreo(userCreateDTO.getCorreo())) {
+        if (usuarioServiceImpl.existeUsuarioByCorreo(userCreateDTO.getCorreo())) {
             return new ResponseEntity<>("Ese correo ya está registrado", HttpStatus.BAD_REQUEST);
         }
 
         System.out.println("Datos recibidos: " + userCreateDTO);
 
-        // Crear nueva instancia de Usuario
-        Usuario usuario = new Usuario();
-        usuario.setNombre(userCreateDTO.getNombre());
-        usuario.setApellido(userCreateDTO.getApellido());
-        usuario.setCorreo(userCreateDTO.getCorreo());
-        usuario.setPass(passwordEncoder.encode(userCreateDTO.getPass()));
-        usuario.setEstado(EstadoUsuario.valueOf(userCreateDTO.getEstado().toUpperCase()));
-
-        // Asignar roles usando el ID
-        Set<Rol> roles = userCreateDTO.getRoles().stream()
-                .map(rolDto -> rolRepository.findById(rolDto.getIdRol())
-                        .orElseThrow(() -> new RuntimeException("El rol no existe: " + rolDto.getIdRol())))
-                .collect(Collectors.toSet());
-        usuario.setRoles(roles);
-
-        usuarioRepository.save(usuario);
+        usuarioServiceImpl.ingresarUsuario(userCreateDTO);
         return new ResponseEntity<>("Usuario registrado exitosamente", HttpStatus.OK);
     }
 

@@ -65,17 +65,15 @@ public class VentaServiceImpl implements VentaService {
         }
 
         Cliente cliente = null;
-        if (ventaDTO.getCliente().isPresent()) {
-        
-            cliente = ventaDTO.getCliente().orElse(null);
+        if (ventaDTO.getCliente()== null) {
+            cliente = ventaDTO.getCliente(); 
             String doc = cliente.getDocument();
-
-            if(clienteServiceImpl.existeClienteDoc(doc)){
-                // actualiza el cliente
-                clienteServiceImpl.editarCliente(cliente.getIdCliente(), cliente);
             
-            }else{
-                // crea un nuevo cliente
+            if (clienteServiceImpl.existeClienteDoc(doc)) {
+                
+                clienteServiceImpl.editarCliente(cliente.getIdCliente(), cliente);
+            } else {
+                // **Posible error: Asegúrate de que la creación de cliente funcione correctamente si es un nuevo cliente**
                 clienteServiceImpl.ingresarCliente(cliente);
             }
         }

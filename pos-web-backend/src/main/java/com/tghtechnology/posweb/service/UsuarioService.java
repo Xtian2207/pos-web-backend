@@ -32,6 +32,8 @@ public interface UsuarioService {
 
     boolean existeUsuario(Long id);
 
+    Boolean existeUsuarioByCorreo(String correo);
+
     // roles de un usuario
     Set<RolDto> rolesUsuario(Long id);
 
