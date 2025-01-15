@@ -1,6 +1,5 @@
 package com.tghtechnology.posweb.controllers;
 
-import com.tghtechnology.posweb.data.dto.ClienteDTO;
 import com.tghtechnology.posweb.data.dto.VentaDTO;
 import com.tghtechnology.posweb.service.VentaService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +12,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+@CrossOrigin("*")
 @RestController
 @RequestMapping("/api/ventas")
 public class VentaController {

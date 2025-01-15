@@ -3,7 +3,6 @@ package com.tghtechnology.posweb.data.dto;
 import java.time.LocalTime;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.tghtechnology.posweb.data.entities.Cliente;

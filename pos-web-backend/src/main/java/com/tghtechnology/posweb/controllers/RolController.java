@@ -12,12 +12,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import jakarta.validation.*;
 import com.tghtechnology.posweb.data.dto.RolDto;
 import com.tghtechnology.posweb.data.entities.Rol;
 import com.tghtechnology.posweb.service.impl.RolServiceImpl;
 
+@CrossOrigin("*")
 @RestController
 @RequestMapping("/api/roles")
 public class RolController {

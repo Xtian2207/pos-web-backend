@@ -1,6 +1,5 @@
 package com.tghtechnology.posweb.service.impl;
 
-import com.tghtechnology.posweb.data.dto.ClienteDTO;
 import com.tghtechnology.posweb.data.dto.DetalleVentaDTO;
 import com.tghtechnology.posweb.data.dto.VentaDTO;
 import com.tghtechnology.posweb.data.entities.Cliente;
@@ -9,7 +8,6 @@ import com.tghtechnology.posweb.data.entities.MetodoPago;
 import com.tghtechnology.posweb.data.entities.Producto;
 import com.tghtechnology.posweb.data.entities.Usuario;
 import com.tghtechnology.posweb.data.entities.Venta;
-import com.tghtechnology.posweb.data.mapper.ClienteMapper;
 import com.tghtechnology.posweb.data.mapper.VentaMapper;
 import com.tghtechnology.posweb.data.repository.DetalleVentaRepository;
 import com.tghtechnology.posweb.data.repository.ProductoRepository;
@@ -47,10 +45,6 @@ public class VentaServiceImpl implements VentaService {
     @Autowired
     private VentaMapper ventaMapper;
 
-    @Autowired
-    private ClienteMapper clienteMapper;
-
-    
     @Override
     public VentaDTO registrarVenta(VentaDTO ventaDTO) {
         // Validaciones iniciales

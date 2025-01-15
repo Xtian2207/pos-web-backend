@@ -1,8 +1,6 @@
 package com.tghtechnology.posweb.service;
 
-import com.tghtechnology.posweb.data.dto.ClienteDTO;
 import com.tghtechnology.posweb.data.dto.VentaDTO;
-import com.tghtechnology.posweb.data.entities.Cliente;
 
 import java.util.Date;
 import java.util.List;

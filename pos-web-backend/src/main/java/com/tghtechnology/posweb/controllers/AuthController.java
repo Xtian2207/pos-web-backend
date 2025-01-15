@@ -1,7 +1,5 @@
 package com.tghtechnology.posweb.controllers;
 
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,7 +8,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,13 +16,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.tghtechnology.posweb.data.dto.LoginDTO;
 import com.tghtechnology.posweb.data.dto.UserCreateDTO;
-import com.tghtechnology.posweb.data.repository.RolRepository;
 import com.tghtechnology.posweb.security.JWTAuthResonseDto;
 import com.tghtechnology.posweb.security.JwtTokenProvider;
 import com.tghtechnology.posweb.service.impl.UsuarioServiceImpl;
 
 import jakarta.validation.Valid;
 
+@CrossOrigin("*")
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -34,12 +32,6 @@ public class AuthController {
 
     @Autowired
     private UsuarioServiceImpl usuarioServiceImpl;
-
-    @Autowired
-    private RolRepository rolRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
