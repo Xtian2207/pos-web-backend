@@ -12,7 +12,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-@CrossOrigin("*")
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/ventas")
 public class VentaController {

@@ -19,7 +19,7 @@ import com.tghtechnology.posweb.data.dto.RolDto;
 import com.tghtechnology.posweb.data.entities.Rol;
 import com.tghtechnology.posweb.service.impl.RolServiceImpl;
 
-@CrossOrigin("*")
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/roles")
 public class RolController {

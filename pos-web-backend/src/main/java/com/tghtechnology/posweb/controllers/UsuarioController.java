@@ -28,7 +28,7 @@ import com.tghtechnology.posweb.service.impl.UsuarioServiceImpl;
 
 import jakarta.validation.Valid;
 
-@CrossOrigin("*")
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/usuarios")
 public class UsuarioController {

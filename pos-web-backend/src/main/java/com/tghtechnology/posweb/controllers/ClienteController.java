@@ -22,7 +22,7 @@ import com.tghtechnology.posweb.service.impl.ClienteServiceImpl;
 
 import jakarta.validation.Valid;
 
-@CrossOrigin("*")
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/clientes")
 public class ClienteController {
