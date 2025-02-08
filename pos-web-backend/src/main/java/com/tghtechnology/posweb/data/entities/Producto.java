@@ -40,6 +40,10 @@ public class Producto {
     @JoinColumn(name = "id_categoria", referencedColumnName = "id_categoria")
     private Categoria categoria;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "imagen_id",referencedColumnName = "id")
+    private Imagen imagen;
+
     public Producto(String nombreProducto, String descripcion, Double precio, int cantidad, EstadoProducto estado) {
         this.nombreProducto = nombreProducto;
         this.descripcion = descripcion;

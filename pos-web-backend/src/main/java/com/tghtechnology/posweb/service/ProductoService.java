@@ -2,13 +2,17 @@ package com.tghtechnology.posweb.service;
 
 import com.tghtechnology.posweb.data.dto.ProductoDTO;
 import com.tghtechnology.posweb.data.entities.EstadoProducto;
+import com.tghtechnology.posweb.data.entities.Producto;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.web.multipart.MultipartFile;
+
 public interface ProductoService {
 
-    ProductoDTO registrarProducto(Long categoriaId, ProductoDTO productoDTO);
+    ProductoDTO registrarProducto(Long categoriaId, ProductoDTO productoDTO,MultipartFile multipartFile) throws IOException;
 
     List<ProductoDTO> listarProductos();
 
@@ -17,6 +21,8 @@ public interface ProductoService {
     Optional<ProductoDTO> buscarPorId(Long idProducto);
 
     ProductoDTO actualizarProducto(Long idProducto, ProductoDTO productoActualizaDto);
+
+    Producto actualizarImagenProducto(MultipartFile file, Producto producto) throws IOException;
 
     void eliminarProducto(Long idProducto);
 

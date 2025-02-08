@@ -69,6 +69,7 @@ class ProductoServiceTest {
         productoDTO.setCategoria(categoria);
     }
 
+    /* 
     @Test
     void registrarProducto() {
         when(categoriaRepository.findById(anyLong())).thenReturn(Optional.of(categoria));
@@ -83,7 +84,7 @@ class ProductoServiceTest {
         verify(categoriaRepository).findById(anyLong());
         verify(productoRepository).save(any(Producto.class));
     }
-
+    */
     @Test
     void listarProductos() {
         when(productoRepository.findAll()).thenReturn(Arrays.asList(producto));

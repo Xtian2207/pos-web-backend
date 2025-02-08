@@ -1,16 +1,20 @@
 package com.tghtechnology.posweb.controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tghtechnology.posweb.data.dto.ProductoDTO;
 import com.tghtechnology.posweb.data.entities.EstadoProducto;
+import com.tghtechnology.posweb.data.entities.Producto;
+import com.tghtechnology.posweb.data.mapper.ProductoMapper;
 import com.tghtechnology.posweb.exceptions.ResourceNotFoundException;
 import com.tghtechnology.posweb.service.ProductoService;
 
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,10 +26,20 @@ public class ProductoController {
     @Autowired
     private ProductoService productoService;
 
+    @Autowired
+    private ProductoMapper productoMapper;
+
     @PostMapping("/registrar/{categoriaId}")
-    public ResponseEntity<?> registrarProducto(@PathVariable Long categoriaId,
-            @RequestBody @Valid ProductoDTO productoDTO) {
-        ProductoDTO productoRegistrado = productoService.registrarProducto(categoriaId, productoDTO);
+    public ResponseEntity<?> registrarProducto(
+            @PathVariable Long categoriaId,
+            @RequestParam("productoDTO") String productoDTOJson,
+            @RequestParam("file") MultipartFile multipartFile) throws IOException {
+
+        // Convierte el JSON en un objeto ProductoDTO
+        ObjectMapper objectMapper = new ObjectMapper();
+        ProductoDTO productoDTO = objectMapper.readValue(productoDTOJson, ProductoDTO.class);
+
+        ProductoDTO productoRegistrado = productoService.registrarProducto(categoriaId, productoDTO, multipartFile);
         return ResponseEntity.status(HttpStatus.CREATED).body(productoRegistrado);
     }
 
@@ -49,6 +63,7 @@ public class ProductoController {
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).body("Producto no encontrado");
     }
 
+    /*     
     @PutMapping("/{idProducto}")
     public ResponseEntity<?> actualizarProducto(@PathVariable Long idProducto, @RequestBody ProductoDTO productoDTO) {
         try {
@@ -58,6 +73,28 @@ public class ProductoController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
+    */
+
+
+    @PutMapping("/{idProducto}")
+public ResponseEntity<?> actualizarProducto(
+        @PathVariable Long idProducto, 
+        @RequestBody ProductoDTO productoDTO) {
+    try {
+        // Asegurar que el ID del DTO coincide con el de la URL
+        if (productoDTO.getIdProducto() == null) {
+            productoDTO.setIdProducto(idProducto);
+        } else if (!productoDTO.getIdProducto().equals(idProducto)) {
+            return ResponseEntity.badRequest().body("El ID del producto en la URL y en el cuerpo no coinciden");
+        }
+
+        ProductoDTO productoActualizado = productoService.actualizarProducto(idProducto, productoDTO);
+        return ResponseEntity.ok(productoActualizado);
+    } catch (ResourceNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+}
+
 
     @DeleteMapping("/{idProducto}")
     public ResponseEntity<?> eliminarProducto(@PathVariable Long idProducto) {
@@ -91,4 +128,44 @@ public class ProductoController {
         List<ProductoDTO> productos = productoService.obtenerProductosPorCategoria(categoriaId);
         return ResponseEntity.ok(productos);
     }
+
+    /*
+     * @PutMapping("/{id}/imagen")
+     * public ResponseEntity<Producto> actualizarProductoImagen(@PathVariable Long
+     * id,
+     * 
+     * @RequestPart("file") MultipartFile file) throws IOException {
+     * Optional<ProductoDTO> productoDTO = productoService.buscarPorId(id);
+     * 
+     * if (productoDTO.isPresent()) {
+     * Producto producto = productoMapper.toEntity(productoDTO.get());
+     * Producto productoActualizado = productoService.actualizarImagenProducto(file,
+     * producto);
+     * return new ResponseEntity<>(productoActualizado, HttpStatus.OK);
+     * } else {
+     * return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+     * }
+     * }
+     */
+
+    @PutMapping("/{id}/imagen")
+    public ResponseEntity<ProductoDTO> actualizarProductoImagen(
+            @PathVariable Long id,
+            @RequestParam("file") MultipartFile file) throws IOException {
+
+        // Buscar el producto por ID
+        ProductoDTO productoDTO = productoService.buscarPorId(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Producto con ID " + id + " no encontrado"));
+
+        // Convertir DTO a Entidad
+        Producto producto = productoMapper.toEntity(productoDTO);
+
+        // Actualizar la imagen
+        Producto productoActualizado = productoService.actualizarImagenProducto(file, producto);
+
+        // Convertir la entidad actualizada a DTO
+        ProductoDTO productoActualizadoDTO = productoMapper.toDTO(productoActualizado);
+        return ResponseEntity.ok(productoActualizadoDTO);
+    }
+
 }
