@@ -28,6 +28,7 @@ public class CloudinaryServiceImpl implements CloudinaryService{
         cloudinary = new Cloudinary(valuesMap);
     }
 
+    /* 
     @Override
     public Map<?, ?> upload(MultipartFile multipartFile) throws IOException {
         File file = convert(multipartFile); //Convertimos el archivo MultipartFile en un File local
@@ -38,11 +39,27 @@ public class CloudinaryServiceImpl implements CloudinaryService{
         }
         return result;
 
+    }*/
+
+    @Override
+    public Map<String, Object> upload(MultipartFile multipartFile) throws IOException {
+        File file = convert(multipartFile);
+        
+        Map<String, Object> result = cloudinary.uploader().upload(file, ObjectUtils.emptyMap());
+
+        Files.deleteIfExists(file.toPath());
+
+        String url = (String) result.get("secure_url");
+        String publicId = (String) result.get("public_id"); 
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("url", url);
+        response.put("public_id", publicId);
+        return response;
     }
 
     @Override
     public Map<?,?> delete(String id) throws IOException {
-        //Llamamos a Cloudinary para eliminar un archivo usando su ID
         Map<?, ?> result = cloudinary.uploader().destroy(id, ObjectUtils.emptyMap());
         return result;
     }
