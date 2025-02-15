@@ -34,4 +34,5 @@ public class ProductoDTO {
 
     private Categoria categoria;
 
+    private String imagenUrl;
 }
