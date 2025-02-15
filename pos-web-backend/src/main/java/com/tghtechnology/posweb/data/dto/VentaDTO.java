@@ -19,5 +19,6 @@ public class VentaDTO {
     private Date fechaVenta;
     private LocalTime horaVenta;
     private Cliente cliente;
+    private Double total;
 
 }
