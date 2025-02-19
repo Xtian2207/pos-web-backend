@@ -12,7 +12,7 @@ public interface ClienteService {
     
     ClienteDTO obtenerDatosCliente(Long idcliente);
 
-    void ingresarCliente(Cliente cliente);
+    void ingresarCliente(ClienteDTO clienteDTO);
 
     void eliminarCliente(Long idcliente);
 

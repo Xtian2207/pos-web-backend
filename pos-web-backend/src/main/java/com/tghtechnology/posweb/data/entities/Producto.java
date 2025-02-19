@@ -44,6 +44,10 @@ public class Producto {
     @JoinColumn(name = "imagen_id",referencedColumnName = "id")
     private Imagen imagen;
 
+    @Column(name = "codigo_barras_url")
+    private String codigoBarrasUrl;
+
+
     public Producto(String nombreProducto, String descripcion, Double precio, int cantidad, EstadoProducto estado) {
         this.nombreProducto = nombreProducto;
         this.descripcion = descripcion;

@@ -36,17 +36,20 @@ public class ClienteServiceImpl implements ClienteService {
     }
 
     @Override
-    public void ingresarCliente(Cliente cliente) {
-        if (cliente == null) {
-            throw new IllegalArgumentException("El cliente no puede ser nulo");
-        }
-        try {
-            clienteRepository.save(cliente);
-        } catch (Exception e) {
-            // Lanzar una excepción personalizada o una excepción genérica
-            throw new RuntimeException("Error al guardar el cliente", e);
-        }
+public void ingresarCliente(ClienteDTO clienteDTO) {
+    if (clienteDTO == null) {
+        throw new IllegalArgumentException("El cliente no puede ser nulo");
     }
+
+    // Convertir DTO a entidad
+    Cliente cliente = clienteMapper.toEntity(clienteDTO);
+
+    try {
+        clienteRepository.save(cliente);
+    } catch (Exception e) {
+        throw new RuntimeException("Error al guardar el cliente", e);
+    }
+}
 
     @Override
     public void eliminarCliente(Long id){

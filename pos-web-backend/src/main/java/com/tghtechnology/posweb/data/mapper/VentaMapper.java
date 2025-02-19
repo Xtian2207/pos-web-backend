@@ -14,7 +14,19 @@ public class VentaMapper {
     private ModelMapper modelMapper;
 
     public VentaDTO toDTO(Venta venta) {
-        return modelMapper.map(venta, VentaDTO.class);
+        VentaDTO ventaDTO = modelMapper.map(venta, VentaDTO.class);
+
+        // Mapear el nombre del usuario
+        if (venta.getUsuario() != null) {
+            ventaDTO.setNombreUsuario(venta.getUsuario().getNombre());
+        }
+
+        // Mapear el nombre del cliente
+        if (venta.getCliente() != null) {
+            ventaDTO.setNombreCliente(venta.getCliente().getNombre());
+        }
+
+        return ventaDTO;
     }
 
 

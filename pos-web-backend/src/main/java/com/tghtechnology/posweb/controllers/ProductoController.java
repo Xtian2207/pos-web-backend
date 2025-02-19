@@ -1,6 +1,5 @@
 package com.tghtechnology.posweb.controllers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tghtechnology.posweb.data.dto.ProductoDTO;
 import com.tghtechnology.posweb.data.entities.EstadoProducto;
 import com.tghtechnology.posweb.data.entities.Producto;
@@ -29,15 +28,44 @@ public class ProductoController {
     @Autowired
     private ProductoMapper productoMapper;
 
+    /*
+     * @PostMapping("/registrar/{categoriaId}")
+     * public ResponseEntity<?> registrarProducto(
+     * 
+     * @PathVariable Long categoriaId,
+     * 
+     * @RequestParam("productoDTO") String productoDTOJson,
+     * 
+     * @RequestParam("file") MultipartFile multipartFile) throws IOException {
+     * 
+     * // Convierte el JSON en un objeto ProductoDTO
+     * ObjectMapper objectMapper = new ObjectMapper();
+     * ProductoDTO productoDTO = objectMapper.readValue(productoDTOJson,
+     * ProductoDTO.class);
+     * 
+     * ProductoDTO productoRegistrado =
+     * productoService.registrarProducto(categoriaId, productoDTO, multipartFile);
+     * return ResponseEntity.status(HttpStatus.CREATED).body(productoRegistrado);
+     * }
+     */
+
     @PostMapping("/registrar/{categoriaId}")
     public ResponseEntity<?> registrarProducto(
             @PathVariable Long categoriaId,
-            @RequestParam("productoDTO") String productoDTOJson,
+            @RequestParam("nombreProducto") String nombreProducto,
+            @RequestParam("descripcion") String descripcion,
+            @RequestParam("precio") Double precio,
+            @RequestParam("cantidad") int cantidad,
+            @RequestParam("estado") EstadoProducto estado,
             @RequestParam("file") MultipartFile multipartFile) throws IOException {
 
-        // Convierte el JSON en un objeto ProductoDTO
-        ObjectMapper objectMapper = new ObjectMapper();
-        ProductoDTO productoDTO = objectMapper.readValue(productoDTOJson, ProductoDTO.class);
+        // Crear el DTO manualmente
+        ProductoDTO productoDTO = new ProductoDTO();
+        productoDTO.setNombreProducto(nombreProducto);
+        productoDTO.setDescripcion(descripcion);
+        productoDTO.setPrecio(precio);
+        productoDTO.setCantidad(cantidad);
+        productoDTO.setEstado(estado);
 
         ProductoDTO productoRegistrado = productoService.registrarProducto(categoriaId, productoDTO, multipartFile);
         return ResponseEntity.status(HttpStatus.CREATED).body(productoRegistrado);
@@ -63,38 +91,38 @@ public class ProductoController {
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).body("Producto no encontrado");
     }
 
-    /*     
+    /*
+     * @PutMapping("/{idProducto}")
+     * public ResponseEntity<?> actualizarProducto(@PathVariable Long
+     * idProducto, @RequestBody ProductoDTO productoDTO) {
+     * try {
+     * ProductoDTO productoActualizado =
+     * productoService.actualizarProducto(idProducto, productoDTO);
+     * return ResponseEntity.ok(productoActualizado);
+     * } catch (ResourceNotFoundException e) {
+     * return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+     * }
+     * }
+     */
+
     @PutMapping("/{idProducto}")
-    public ResponseEntity<?> actualizarProducto(@PathVariable Long idProducto, @RequestBody ProductoDTO productoDTO) {
+    public ResponseEntity<?> actualizarProducto(
+            @PathVariable Long idProducto,
+            @RequestBody ProductoDTO productoDTO) {
         try {
+            // Asegurar que el ID del DTO coincide con el de la URL
+            if (productoDTO.getIdProducto() == null) {
+                productoDTO.setIdProducto(idProducto);
+            } else if (!productoDTO.getIdProducto().equals(idProducto)) {
+                return ResponseEntity.badRequest().body("El ID del producto en la URL y en el cuerpo no coinciden");
+            }
+
             ProductoDTO productoActualizado = productoService.actualizarProducto(idProducto, productoDTO);
             return ResponseEntity.ok(productoActualizado);
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
-    */
-
-
-    @PutMapping("/{idProducto}")
-public ResponseEntity<?> actualizarProducto(
-        @PathVariable Long idProducto, 
-        @RequestBody ProductoDTO productoDTO) {
-    try {
-        // Asegurar que el ID del DTO coincide con el de la URL
-        if (productoDTO.getIdProducto() == null) {
-            productoDTO.setIdProducto(idProducto);
-        } else if (!productoDTO.getIdProducto().equals(idProducto)) {
-            return ResponseEntity.badRequest().body("El ID del producto en la URL y en el cuerpo no coinciden");
-        }
-
-        ProductoDTO productoActualizado = productoService.actualizarProducto(idProducto, productoDTO);
-        return ResponseEntity.ok(productoActualizado);
-    } catch (ResourceNotFoundException e) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-    }
-}
-
 
     @DeleteMapping("/{idProducto}")
     public ResponseEntity<?> eliminarProducto(@PathVariable Long idProducto) {

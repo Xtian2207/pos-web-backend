@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.tghtechnology.posweb.data.dto.ClienteDTO;
 import com.tghtechnology.posweb.data.entities.Cliente;
 import com.tghtechnology.posweb.data.entities.TipoDocumento;
+import com.tghtechnology.posweb.service.ClienteService;
 import com.tghtechnology.posweb.service.impl.ClienteServiceImpl;
 
 import jakarta.validation.Valid;
@@ -28,7 +29,7 @@ import jakarta.validation.Valid;
 public class ClienteController {
 
     @Autowired
-    private ClienteServiceImpl clienteServiceImpl;
+    private ClienteService clienteServiceImpl;
 
     @GetMapping
     public ResponseEntity<List<Cliente>> listaClientes(){
@@ -41,9 +42,9 @@ public class ClienteController {
 
      // nuevo cliente
     @PostMapping
-    public ResponseEntity<String> ingresarNuevoCliente(@Valid @RequestBody Cliente cliente){
+    public ResponseEntity<String> ingresarNuevoCliente(@Valid @RequestBody ClienteDTO clienteDTO){
         try {
-            clienteServiceImpl.ingresarCliente(cliente);
+            clienteServiceImpl.ingresarCliente(clienteDTO);
             return new ResponseEntity<>("Cliente creado correctamente", HttpStatus.CREATED);
         } catch (DataIntegrityViolationException e) {
             return new ResponseEntity<>("Error: El correo ya está registrado.", HttpStatus.BAD_REQUEST);

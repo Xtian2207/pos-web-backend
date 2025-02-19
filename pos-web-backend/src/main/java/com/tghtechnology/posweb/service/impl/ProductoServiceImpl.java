@@ -10,6 +10,7 @@ import com.tghtechnology.posweb.data.repository.CategoriaRepository;
 import com.tghtechnology.posweb.data.repository.ProductoRepository;
 import com.tghtechnology.posweb.exceptions.BadRequestException;
 import com.tghtechnology.posweb.exceptions.ResourceNotFoundException;
+import com.tghtechnology.posweb.service.BarcodeService;
 import com.tghtechnology.posweb.service.ImagenService;
 import com.tghtechnology.posweb.service.ProductoService;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +36,9 @@ public class ProductoServiceImpl implements ProductoService {
     private ImagenService imagenService;
 
     @Autowired
+    private BarcodeService barcodeService;
+
+    @Autowired
     private ProductoMapper productoMapper;
 
     @Override
@@ -54,6 +58,9 @@ public class ProductoServiceImpl implements ProductoService {
             Imagen imagen = imagenService.uploadImage(multipartFile);
             producto.setImagen(imagen);
         }
+
+        String barcodeUrl = barcodeService.generateAndUploadBarcode();
+        producto.setCodigoBarrasUrl(barcodeUrl);
 
         Producto productoGuardado = productoRepository.save(producto);
         return productoMapper.toDTO(productoGuardado);

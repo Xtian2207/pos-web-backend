@@ -1,5 +1,6 @@
 package com.tghtechnology.posweb.service.impl;
 
+import com.tghtechnology.posweb.data.dto.ClienteDTO;
 import com.tghtechnology.posweb.data.dto.DetalleVentaDTO;
 import com.tghtechnology.posweb.data.dto.VentaDTO;
 import com.tghtechnology.posweb.data.entities.Cliente;
@@ -8,7 +9,9 @@ import com.tghtechnology.posweb.data.entities.MetodoPago;
 import com.tghtechnology.posweb.data.entities.Producto;
 import com.tghtechnology.posweb.data.entities.Usuario;
 import com.tghtechnology.posweb.data.entities.Venta;
+import com.tghtechnology.posweb.data.mapper.ClienteMapper;
 import com.tghtechnology.posweb.data.mapper.VentaMapper;
+import com.tghtechnology.posweb.data.repository.ClienteRepository;
 import com.tghtechnology.posweb.data.repository.DetalleVentaRepository;
 import com.tghtechnology.posweb.data.repository.ProductoRepository;
 import com.tghtechnology.posweb.data.repository.UsuarioRepository;
@@ -40,7 +43,10 @@ public class VentaServiceImpl implements VentaService {
     private ProductoRepository productoRepository;
 
     @Autowired
-    private ClienteServiceImpl clienteServiceImpl;
+    private ClienteMapper clienteMapper;
+
+    @Autowired
+    private ClienteRepository clienteRepository;
 
     @Autowired
     private VentaMapper ventaMapper;
@@ -58,26 +64,32 @@ public class VentaServiceImpl implements VentaService {
             throw new IllegalArgumentException("Usuario no encontrado con ID: " + ventaDTO.getIdUsuario());
         }
 
-        Cliente cliente = null;
-        if (ventaDTO.getCliente()== null) {
-            cliente = ventaDTO.getCliente(); 
-            String doc = cliente.getDocument();
-            
-            if (clienteServiceImpl.existeClienteDoc(doc)) {
-                
-                clienteServiceImpl.editarCliente(cliente.getIdCliente(), cliente);
+        // Validar y procesar el cliente
+        ClienteDTO clienteDTO = ventaDTO.getCliente(); // Usar el campo "cliente" en lugar de "clienteDTO"
+        Cliente clienteEntity = null;
+
+        if (clienteDTO != null) {
+            // Verificar si el cliente ya existe
+            if (clienteDTO.getIdCliente() != null) {
+                Optional<Cliente> clienteExistente = clienteRepository.findById(clienteDTO.getIdCliente());
+                if (clienteExistente.isPresent()) {
+                    clienteEntity = clienteExistente.get();
+                } else {
+                    throw new IllegalArgumentException("Cliente no encontrado con ID: " + clienteDTO.getIdCliente());
+                }
             } else {
-                // **Posible error: Asegúrate de que la creación de cliente funcione correctamente si es un nuevo cliente**
-                clienteServiceImpl.ingresarCliente(cliente);
+                // Crear un nuevo cliente si no existe
+                clienteEntity = clienteMapper.toEntity(clienteDTO);
+                clienteRepository.save(clienteEntity);
             }
         }
 
+        // Crear la venta
         Usuario usuario = usuarioExistente.get();
         Venta venta = new Venta();
         venta.setUsuario(usuario);
-        venta.setDetalles(new ArrayList<DetalleVenta>()); // Asegúrate de inicializar la lista de detalles.
-
-        venta.setCliente(cliente);
+        venta.setDetalles(new ArrayList<>()); // Inicializar la lista de detalles
+        venta.setCliente(clienteEntity); // Asignar el cliente a la venta
 
         // Procesar los detalles de la venta
         double totalVenta = 0;
@@ -112,10 +124,10 @@ public class VentaServiceImpl implements VentaService {
         venta.setFechaVenta(new Date());
         venta.setHoraVenta(LocalTime.now());
 
-        // Asegurarse de que el método de pago esté presente antes de guardar
+        // Validar y asignar el método de pago
         if (ventaDTO.getMetodoPago() != null) {
             try {
-                venta.setMetodoPago(MetodoPago.valueOf(ventaDTO.getMetodoPago())); // Asignar el método de pago
+                venta.setMetodoPago(MetodoPago.valueOf(ventaDTO.getMetodoPago()));
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException("Método de pago inválido.");
             }
@@ -123,18 +135,14 @@ public class VentaServiceImpl implements VentaService {
             throw new IllegalArgumentException("Método de pago no puede ser nulo.");
         }
 
-        // Guardar la venta y los detalles después de asignar todos los valores
+        // Guardar la venta y los detalles
         Venta ventaGuardada = ventaRepository.save(venta);
-
-        // Guardar los detalles de la venta
         for (DetalleVenta detalle : venta.getDetalles()) {
             detalleVentaRepository.save(detalle);
         }
-        
-        // asignamos null al cliente por ser compra rapida
 
-        // Mapeo de la entidad 'Venta' a DTO 'VentaDTO'
-        return ventaMapper.toDTO(ventaGuardada); // Aquí se convierte la venta a un DTO antes de devolverlo
+        // Convertir la entidad a DTO y devolverla
+        return ventaMapper.toDTO(ventaGuardada);
     }
 
     @Override
