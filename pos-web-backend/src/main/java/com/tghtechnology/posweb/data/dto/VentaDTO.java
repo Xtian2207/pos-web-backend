@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -19,8 +20,9 @@ public class VentaDTO {
     private String metodoPago;
     private Date fechaVenta;
     private LocalTime horaVenta;
+    private String tipoDeVenta;
 
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private ClienteDTO cliente;
     
     private String nombreCliente; 

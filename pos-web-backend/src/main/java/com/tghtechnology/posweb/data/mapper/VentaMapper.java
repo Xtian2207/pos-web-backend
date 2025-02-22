@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.tghtechnology.posweb.data.dto.VentaDTO;
+import com.tghtechnology.posweb.data.entities.Cliente;
+import com.tghtechnology.posweb.data.entities.TipoVenta;
 import com.tghtechnology.posweb.data.entities.Venta;
 
 @Component
@@ -26,13 +28,30 @@ public class VentaMapper {
             ventaDTO.setNombreCliente(venta.getCliente().getNombre());
         }
 
+        if (venta.getTipoDeVenta() != null) {
+            ventaDTO.setTipoDeVenta(venta.getTipoDeVenta().name());
+        }
+
         return ventaDTO;
     }
 
-
     public Venta toEntity(VentaDTO ventaDTO) {
-        // Mapeamos el DTO de Venta a la entidad Venta
-        return modelMapper.map(ventaDTO, Venta.class);
+        // Mapear el DTO de Venta a la entidad Venta
+        Venta venta = modelMapper.map(ventaDTO, Venta.class);
+
+        // Mapear el tipo de venta (String a enumerado)
+        if (ventaDTO.getTipoDeVenta() != null) {
+            venta.setTipoDeVenta(TipoVenta.valueOf(ventaDTO.getTipoDeVenta().toUpperCase())); // Convertir String a
+                                                                                              // enumerado
+        }
+
+        if (ventaDTO.getCliente() != null && ventaDTO.getCliente().getIdCliente() != null) {
+            Cliente cliente = new Cliente();
+            cliente.setIdCliente(ventaDTO.getCliente().getIdCliente());
+            venta.setCliente(cliente);
+        }
+
+        return venta;
     }
 
 }

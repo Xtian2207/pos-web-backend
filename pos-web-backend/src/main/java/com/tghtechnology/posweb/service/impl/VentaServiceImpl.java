@@ -7,6 +7,7 @@ import com.tghtechnology.posweb.data.entities.Cliente;
 import com.tghtechnology.posweb.data.entities.DetalleVenta;
 import com.tghtechnology.posweb.data.entities.MetodoPago;
 import com.tghtechnology.posweb.data.entities.Producto;
+import com.tghtechnology.posweb.data.entities.TipoVenta;
 import com.tghtechnology.posweb.data.entities.Usuario;
 import com.tghtechnology.posweb.data.entities.Venta;
 import com.tghtechnology.posweb.data.mapper.ClienteMapper;
@@ -17,6 +18,7 @@ import com.tghtechnology.posweb.data.repository.ProductoRepository;
 import com.tghtechnology.posweb.data.repository.UsuarioRepository;
 import com.tghtechnology.posweb.data.repository.VentaRepository;
 import com.tghtechnology.posweb.service.VentaService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -43,10 +45,10 @@ public class VentaServiceImpl implements VentaService {
     private ProductoRepository productoRepository;
 
     @Autowired
-    private ClienteMapper clienteMapper;
+    private ClienteRepository clienteRepository;
 
     @Autowired
-    private ClienteRepository clienteRepository;
+    private ClienteMapper clienteMapper;
 
     @Autowired
     private VentaMapper ventaMapper;
@@ -90,6 +92,16 @@ public class VentaServiceImpl implements VentaService {
         venta.setUsuario(usuario);
         venta.setDetalles(new ArrayList<>()); // Inicializar la lista de detalles
         venta.setCliente(clienteEntity); // Asignar el cliente a la venta
+
+        if (ventaDTO.getTipoDeVenta() != null) {
+            try {
+                venta.setTipoDeVenta(TipoVenta.valueOf(ventaDTO.getTipoDeVenta().toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Tipo de venta inválido.");
+            }
+        } else {
+            throw new IllegalArgumentException("Tipo de venta no puede ser nulo.");
+        }
 
         // Procesar los detalles de la venta
         double totalVenta = 0;
@@ -183,6 +195,15 @@ public class VentaServiceImpl implements VentaService {
                 venta.setMetodoPago(MetodoPago.valueOf(ventaDTO.getMetodoPago().toUpperCase()));
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException("Método de pago inválido.");
+            }
+        }
+
+        // Actualizar tipo de venta
+        if (ventaDTO.getTipoDeVenta() != null) {
+            try {
+                venta.setTipoDeVenta(TipoVenta.valueOf(ventaDTO.getTipoDeVenta().toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Tipo de venta inválido.");
             }
         }
 

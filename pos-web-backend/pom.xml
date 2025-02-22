@@ -121,10 +121,10 @@
 			<version>2.0.0</version>
 		</dependency>
 		<dependency>
-        <groupId>net.sf.barcode4j</groupId>
-        <artifactId>barcode4j</artifactId>
-        <version>2.1</version>
-    </dependency>
+			<groupId>net.sf.barcode4j</groupId>
+			<artifactId>barcode4j</artifactId>
+			<version>2.1</version>
+		</dependency>
 		<dependency>
 			<groupId>io.github.cdimascio</groupId>
 			<artifactId>dotenv-java</artifactId>
@@ -141,11 +141,24 @@
 			<version>3.4.1</version>
 		</dependency>
 		<dependency>
-    <groupId>commons-fileupload</groupId>
-    <artifactId>commons-fileupload</artifactId>
-    <version>1.4</version>
-</dependency>
-
+			<groupId>commons-fileupload</groupId>
+			<artifactId>commons-fileupload</artifactId>
+			<version>1.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-websocket</artifactId>
+		</dependency>
+		<!--
+		https://mvnrepository.com/artifact/org.springframework.security/spring-security-messaging -->
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-messaging</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-messaging</artifactId>
+		</dependency>
 
 	</dependencies>
 

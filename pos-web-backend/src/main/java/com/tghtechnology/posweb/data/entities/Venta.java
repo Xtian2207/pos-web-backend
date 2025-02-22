@@ -5,6 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import static org.junit.Assert.fail;
+
 import java.time.LocalTime;
 import java.util.Date;
 import java.util.List;
@@ -48,5 +51,9 @@ public class Venta {
     @ManyToOne
     @JoinColumn(name = "id_cliente", referencedColumnName = "idCliente", nullable = true)
     private Cliente cliente = null;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_venta", nullable = false)
+    private TipoVenta tipoDeVenta;
 
 }

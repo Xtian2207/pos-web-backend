@@ -3,8 +3,12 @@ package com.tghtechnology.posweb.security;
 import java.security.Key;
 import java.util.Date;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 import com.tghtechnology.posweb.exceptions.BadRequestException;
@@ -23,6 +27,9 @@ public class JwtTokenProvider {
 
     @Value("${app.jwt-expiration-milliseconds}")
     private int jwtExpirationInMs;
+
+    @Autowired
+    private UserDetailsService userDetailsService;
 
     public String generateToken(Authentication authentication) {
         String username = authentication.getName();
@@ -55,5 +62,11 @@ public class JwtTokenProvider {
     private Key getSignKey() {
         byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    public Authentication getAuthentication(String token) {
+        String username = getUsenameFromToken(token);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
 }
