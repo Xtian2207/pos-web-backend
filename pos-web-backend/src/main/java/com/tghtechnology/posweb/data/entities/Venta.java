@@ -6,8 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import static org.junit.Assert.fail;
-
 import java.time.LocalTime;
 import java.util.Date;
 import java.util.List;
@@ -26,12 +24,13 @@ public class Venta {
     @Column(name = "id_venta")
     private Long idVenta;
 
-    //@ManyToOne con Usuario: Un usuario (como empleado o cajero) realiza la venta
+    // @ManyToOne con Usuario: Un usuario (como empleado o cajero) realiza la venta
     @ManyToOne
     @JoinColumn(name = "id_usuario", referencedColumnName = "id_usuario", nullable = false)
     private Usuario usuario;
 
-    //@OneToMany con DetalleVenta: Cada venta puede tener múltiples productos comprados
+    // @OneToMany con DetalleVenta: Cada venta puede tener múltiples productos
+    // comprados
     @OneToMany(mappedBy = "venta", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<DetalleVenta> detalles;
 
@@ -42,6 +41,7 @@ public class Venta {
     private LocalTime horaVenta;
 
     @Column(name = "fecha_venta")
+    @Temporal(TemporalType.DATE)
     private Date fechaVenta;
 
     @Enumerated(EnumType.STRING)

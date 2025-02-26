@@ -19,7 +19,6 @@ import com.tghtechnology.posweb.data.dto.ClienteDTO;
 import com.tghtechnology.posweb.data.entities.Cliente;
 import com.tghtechnology.posweb.data.entities.TipoDocumento;
 import com.tghtechnology.posweb.service.ClienteService;
-import com.tghtechnology.posweb.service.impl.ClienteServiceImpl;
 
 import jakarta.validation.Valid;
 

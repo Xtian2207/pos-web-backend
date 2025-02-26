@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -133,8 +134,19 @@ public class VentaServiceImpl implements VentaService {
 
         // Asignar datos adicionales a la venta
         venta.setTotal(totalVenta);
-        venta.setFechaVenta(new Date());
-        venta.setHoraVenta(LocalTime.now());
+
+        // Asignar fecha sin hora, minutos, segundos ni milisegundos
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.set(Calendar.HOUR_OF_DAY, 0); // Establecer la hora a 00
+        calendar.set(Calendar.MINUTE, 0); // Establecer los minutos a 00
+        calendar.set(Calendar.SECOND, 0); // Establecer los segundos a 00
+        calendar.set(Calendar.MILLISECOND, 0); // Establecer los milisegundos a 00
+        venta.setFechaVenta(calendar.getTime());
+
+        // Asignar hora sin nanosegundos
+        LocalTime horaActual = LocalTime.now().withNano(0); // Eliminar nanosegundos
+        venta.setHoraVenta(horaActual);
 
         // Validar y asignar el método de pago
         if (ventaDTO.getMetodoPago() != null) {

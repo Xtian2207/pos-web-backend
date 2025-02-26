@@ -10,4 +10,4 @@ public class DetalleVentaDTO {
     private String nombreProducto;
     private Double subtotal;
     private Double precioProducto;
-}
+}   

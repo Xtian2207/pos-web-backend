@@ -1,15 +1,19 @@
 package com.tghtechnology.posweb.controllers;
 
 import com.tghtechnology.posweb.data.dto.VentaDTO;
-import com.tghtechnology.posweb.service.NotificationService;
+import com.tghtechnology.posweb.service.ExcelReportService;
 import com.tghtechnology.posweb.service.VentaService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -17,20 +21,18 @@ import java.util.Optional;
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/ventas")
-public class VentaController {  
+public class VentaController {
 
     @Autowired
     private VentaService ventaService;
 
     @Autowired
-    private NotificationService notificationService;
+    private ExcelReportService excelReportService;
 
     @PostMapping("/registrar")
     public ResponseEntity<VentaDTO> registrarVenta(@RequestBody VentaDTO ventaDTO) {
         try {
             VentaDTO ventaRegistrada = ventaService.registrarVenta(ventaDTO);
-            notificationService.sendNotification("Nueva venta registrada con el ID " + ventaDTO.getIdVenta()
-                    + " por el usuario " + ventaDTO.getNombreUsuario());
             return new ResponseEntity<>(ventaRegistrada, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
@@ -85,9 +87,19 @@ public class VentaController {
         return new ResponseEntity<>(ventas, HttpStatus.OK);
     }
 
-    @PostMapping("/notificar")
-    public ResponseEntity<String> enviarNotificacion(@RequestBody String mensaje) {
-        notificationService.sendNotification(mensaje);
-        return new ResponseEntity<>("Notificación enviada", HttpStatus.OK);
+    @GetMapping("/reportes/excel")
+    public ResponseEntity<ByteArrayResource> descargarInformDeVentas() throws IOException {
+        List<VentaDTO> ventas = ventaService.listarVentas();
+        byte[] excelContent = excelReportService.generateSalesReport(ventas);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        headers.setContentDispositionFormData("attachment", "reporte_ventas.xlsx");
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentLength(excelContent.length)
+                .body(new ByteArrayResource(excelContent));
+
     }
+
 }
