@@ -11,6 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -29,10 +30,14 @@ public class VentaController {
     @Autowired
     private ExcelReportService excelReportService;
 
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
+
     @PostMapping("/registrar")
     public ResponseEntity<VentaDTO> registrarVenta(@RequestBody VentaDTO ventaDTO) {
         try {
             VentaDTO ventaRegistrada = ventaService.registrarVenta(ventaDTO);
+            messagingTemplate.convertAndSend("/topic/ventas", "Nueva venta registrada: " + ventaRegistrada.getIdVenta());
             return new ResponseEntity<>(ventaRegistrada, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());

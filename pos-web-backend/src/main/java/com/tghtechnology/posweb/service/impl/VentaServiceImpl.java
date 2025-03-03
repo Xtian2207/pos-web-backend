@@ -68,22 +68,34 @@ public class VentaServiceImpl implements VentaService {
         }
 
         // Validar y procesar el cliente
-        ClienteDTO clienteDTO = ventaDTO.getCliente(); // Usar el campo "cliente" en lugar de "clienteDTO"
+        ClienteDTO clienteDTO = ventaDTO.getCliente();
         Cliente clienteEntity = null;
 
         if (clienteDTO != null) {
-            // Verificar si el cliente ya existe
-            if (clienteDTO.getIdCliente() != null) {
+            // Si el cliente no tiene ID, se crea uno nuevo
+            if (clienteDTO.getIdCliente() == null) {
+                // Validar que los datos del cliente sean correctos
+                if (!clienteDTO.validarNumeroDocumento()) {
+                    throw new IllegalArgumentException("El número de documento del cliente no es válido.");
+                }
+
+                // Verificar si el cliente ya existe por su documento
+                Optional<Cliente> clienteExistente = clienteRepository.findByDocument(clienteDTO.getDocument());
+                if (clienteExistente.isPresent()) {
+                    clienteEntity = clienteExistente.get();
+                } else {
+                    // Crear un nuevo cliente
+                    clienteEntity = clienteMapper.toEntity(clienteDTO);
+                    clienteRepository.save(clienteEntity);
+                }
+            } else {
+                // Si el cliente tiene ID, validar que exista en la base de datos
                 Optional<Cliente> clienteExistente = clienteRepository.findById(clienteDTO.getIdCliente());
                 if (clienteExistente.isPresent()) {
                     clienteEntity = clienteExistente.get();
                 } else {
                     throw new IllegalArgumentException("Cliente no encontrado con ID: " + clienteDTO.getIdCliente());
                 }
-            } else {
-                // Crear un nuevo cliente si no existe
-                clienteEntity = clienteMapper.toEntity(clienteDTO);
-                clienteRepository.save(clienteEntity);
             }
         }
 
