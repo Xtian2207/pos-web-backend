@@ -20,7 +20,7 @@ public interface ProductoService {
 
     Optional<ProductoDTO> buscarPorId(Long idProducto);
 
-    ProductoDTO actualizarProducto(Long idProducto, ProductoDTO productoActualizaDto);
+    ProductoDTO actualizarProducto(Long idProducto, ProductoDTO productoActualizaDto,MultipartFile multipartFile) throws IOException;
 
     Producto actualizarImagenProducto(MultipartFile file, Producto producto) throws IOException;
 

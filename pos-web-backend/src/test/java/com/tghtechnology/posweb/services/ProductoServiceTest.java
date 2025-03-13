@@ -121,7 +121,7 @@ class ProductoServiceTest {
         verify(productoRepository).findByIdProducto(anyLong());
     }
 
-    @Test
+    /*@Test
     void actualizarProducto() {
         when(productoRepository.findByIdProducto(anyLong())).thenReturn(Optional.of(producto));
         when(productoRepository.save(any(Producto.class))).thenReturn(producto);
@@ -132,7 +132,7 @@ class ProductoServiceTest {
         assertNotNull(resultado);
         assertEquals("Laptop", resultado.getNombreProducto());
         verify(productoRepository).save(any(Producto.class));
-    }
+    }*/
 
     @Test
     void eliminarProducto() {

@@ -87,7 +87,7 @@ public class ProductoServiceImpl implements ProductoService {
     }
 
     @Override
-    public ProductoDTO actualizarProducto(Long idProducto, ProductoDTO productoDTO) {
+    public ProductoDTO actualizarProducto(Long idProducto, ProductoDTO productoDTO,MultipartFile multipartFile) throws IOException {
         Producto productoExistente = productoRepository.findById(idProducto)
                 .orElseThrow(() -> new ResourceNotFoundException("Producto con ID " + idProducto + " no encontrado"));
     
@@ -104,28 +104,21 @@ public class ProductoServiceImpl implements ProductoService {
                     .orElseThrow(() -> new ResourceNotFoundException("Categoría no encontrada"));
             productoExistente.setCategoria(categoria);
         }
+
+        if(multipartFile != null && !multipartFile.isEmpty()){
+            if(productoExistente.getImagen() != null){
+                imagenService.deleteImage(productoExistente.getImagen());
+            }
+
+            Imagen nuevaImagen = imagenService.uploadImage(multipartFile);
+            productoExistente.setImagen(nuevaImagen);
+        }
     
         // Guardamos el producto actualizado
         Producto productoActualizado = productoRepository.save(productoExistente);
         return productoMapper.toDTO(productoActualizado);
     }
     
-
-    /*
-     * public ProductoDTO actualizarProducto(Long idProducto, ProductoDTO
-     * productoDTO) {
-     * Producto producto = productoRepository.findByIdProducto(idProducto)
-     * .orElseThrow(() -> new ResourceNotFoundException("Producto con ID " +
-     * idProducto + " no encontrado"));
-     * 
-     * // Actualizar los datos del producto con los del DTO
-     * productoMapper.toEntity(productoDTO, producto);
-     * Producto productoActualizado = productoRepository.save(producto);
-     * 
-     * return productoMapper.toDTO(productoActualizado);
-     * }
-     */
-
     @Override
     public void eliminarProducto(Long idProducto) {
         productoRepository.findById(idProducto)

@@ -28,21 +28,6 @@ public class CloudinaryServiceImpl implements CloudinaryService {
         cloudinary = new Cloudinary(valuesMap);
     }
 
-    /*
-     * @Override
-     * public Map<?, ?> upload(MultipartFile multipartFile) throws IOException {
-     * File file = convert(multipartFile); //Convertimos el archivo MultipartFile en
-     * un File local
-     * //Subimos el archivo a Cloudinary
-     * Map<?,?> result = cloudinary.uploader().upload(file, ObjectUtils.emptyMap());
-     * if(!Files.deleteIfExists(file.toPath())){
-     * throw new IOException("Error al eliminar foto: " + file.getAbsolutePath());
-     * }
-     * return result;
-     * 
-     * }
-     */
-
     @Override
     public Map<?, ?> upload(MultipartFile multipartFile) throws IOException {
         File file = convert(multipartFile);
