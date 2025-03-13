@@ -1,15 +1,19 @@
 package com.tghtechnology.posweb.controllers;
 
+import com.itextpdf.text.DocumentException;
 import com.tghtechnology.posweb.data.dto.ProductoDTO;
 import com.tghtechnology.posweb.data.entities.EstadoProducto;
 import com.tghtechnology.posweb.data.entities.Producto;
 import com.tghtechnology.posweb.data.mapper.ProductoMapper;
 import com.tghtechnology.posweb.exceptions.BadRequestException;
 import com.tghtechnology.posweb.exceptions.ResourceNotFoundException;
+import com.tghtechnology.posweb.service.BarcodeService;
 import com.tghtechnology.posweb.service.ProductoService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,6 +29,9 @@ public class ProductoController {
 
     @Autowired
     private ProductoService productoService;
+
+    @Autowired
+    private BarcodeService barcodeService;
 
     @Autowired
     private ProductoMapper productoMapper;
@@ -155,4 +162,30 @@ public class ProductoController {
         return ResponseEntity.ok(productoActualizadoDTO);
     }
 
+    @GetMapping("/descargar-codigo-barras/{idProducto}")
+    public ResponseEntity<byte[]> descargarCodigoBarrasPdf(@PathVariable Long idProducto, @RequestParam int copies) {
+        try {
+            Optional<ProductoDTO> productoOpt = productoService.buscarPorId(idProducto);
+            if (productoOpt.isPresent()) {
+                String barcodeText = productoOpt.get().getCodigoBarrasUrl(); // Asume que el código de barras está en la
+                                                                             // URL
+                byte[] pdfBytes = barcodeService.generateBarcodePdf(barcodeText, copies);
+
+                HttpHeaders headers = new HttpHeaders(); //Crea un objeto para configurar las cabeceras HTTP
+                headers.setContentType(MediaType.APPLICATION_PDF); //Indica que la respuesta es un PDF
+                //Indica que el PDF debe descargarse con el nombre codigo_barras.pdf.
+                headers.setContentDispositionFormData("attachment", "codigo_barras.pdf");
+                // Configura la política de caché para evitar problemas con navegadores
+                headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
+
+                return ResponseEntity.ok()
+                        .headers(headers)
+                        .body(pdfBytes);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            }
+        } catch (IOException | DocumentException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
 }
