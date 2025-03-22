@@ -37,7 +37,8 @@ public class VentaController {
     public ResponseEntity<VentaDTO> registrarVenta(@RequestBody VentaDTO ventaDTO) {
         try {
             VentaDTO ventaRegistrada = ventaService.registrarVenta(ventaDTO);
-            messagingTemplate.convertAndSend("/topic/ventas", "Nueva venta registrada: " + ventaRegistrada.getIdVenta());
+            messagingTemplate.convertAndSend("/topic/ventas",
+                    "Nueva venta registrada: " + ventaRegistrada.getIdVenta());
             return new ResponseEntity<>(ventaRegistrada, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
@@ -93,8 +94,21 @@ public class VentaController {
     }
 
     @GetMapping("/reportes/excel")
-    public ResponseEntity<ByteArrayResource> descargarInformDeVentas() throws IOException {
-        List<VentaDTO> ventas = ventaService.listarVentas();
+    public ResponseEntity<ByteArrayResource> descargarInformDeVentas(
+            @RequestParam(value = "fechaInicio", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaInicio,
+            @RequestParam(value = "fechaFin", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaFin,
+            @RequestParam(value = "anio", required = false) Integer anio)
+            throws IOException {
+        List<VentaDTO> ventas;
+
+        if (fechaInicio != null && fechaFin != null) {
+            ventas = ventaService.obtenerVentasPorFecha(fechaInicio, fechaFin);
+        } else if (anio != null) {
+            ventas = ventaService.obtenerVentasPorAnio(anio);
+        } else {
+            ventas = ventaService.listarVentas();
+        }
+
         byte[] excelContent = excelReportService.generateSalesReport(ventas);
 
         HttpHeaders headers = new HttpHeaders();

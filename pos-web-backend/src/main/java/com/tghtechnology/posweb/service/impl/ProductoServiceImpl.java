@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -44,24 +45,33 @@ public class ProductoServiceImpl implements ProductoService {
     @Override
     public ProductoDTO registrarProducto(Long categoriaId, ProductoDTO productoDTO, MultipartFile multipartFile)
             throws IOException {
+        // Validar la categoría
         Categoria categoria = categoriaRepository.findById(categoriaId)
                 .orElseThrow(() -> new ResourceNotFoundException("Categoría con ID " + categoriaId + " no encontrada"));
 
+        // Validar el precio
         if (productoDTO.getPrecio() == null || productoDTO.getPrecio() <= 0) {
             throw new BadRequestException("El precio del producto debe ser mayor que 0");
         }
 
+        // Convertir DTO a entidad
         Producto producto = productoMapper.toEntity(productoDTO);
         producto.setCategoria(categoria);
 
+        // Subir la imagen del producto si se proporciona
         if (multipartFile != null && !multipartFile.isEmpty()) {
             Imagen imagen = imagenService.uploadImage(multipartFile);
             producto.setImagen(imagen);
         }
 
-        String barcodeUrl = barcodeService.generateAndUploadBarcode();
-        producto.setCodigoBarrasUrl(barcodeUrl);
+        // Generar y subir el código de barras
+        Map<String, String> barcodeData = barcodeService.generarYSubirCodigoBarras();
 
+        // Asignar el código de barras y la URL de la imagen al producto
+        producto.setCodigoBarras(barcodeData.get("codigoBarras")); // Guardar el valor del código de barras
+        producto.setCodigoBarrasUrl(barcodeData.get("barcodeUrl")); // Guardar la URL de la imagen
+
+        // Guardar el producto en la base de datos
         Producto productoGuardado = productoRepository.save(producto);
         return productoMapper.toDTO(productoGuardado);
     }
@@ -87,17 +97,18 @@ public class ProductoServiceImpl implements ProductoService {
     }
 
     @Override
-    public ProductoDTO actualizarProducto(Long idProducto, ProductoDTO productoDTO,MultipartFile multipartFile) throws IOException {
+    public ProductoDTO actualizarProducto(Long idProducto, ProductoDTO productoDTO, MultipartFile multipartFile)
+            throws IOException {
         Producto productoExistente = productoRepository.findById(idProducto)
                 .orElseThrow(() -> new ResourceNotFoundException("Producto con ID " + idProducto + " no encontrado"));
-    
+
         // Actualizamos solo los campos que pueden cambiar
         productoExistente.setNombreProducto(productoDTO.getNombreProducto());
         productoExistente.setDescripcion(productoDTO.getDescripcion());
         productoExistente.setPrecio(productoDTO.getPrecio());
         productoExistente.setCantidad(productoDTO.getCantidad());
         productoExistente.setEstado(productoDTO.getEstado());
-    
+
         // Mantenemos la categoría si no se envía una nueva
         if (productoDTO.getCategoria() != null && productoDTO.getCategoria().getIdCategoria() != null) {
             Categoria categoria = categoriaRepository.findById(productoDTO.getCategoria().getIdCategoria())
@@ -105,20 +116,20 @@ public class ProductoServiceImpl implements ProductoService {
             productoExistente.setCategoria(categoria);
         }
 
-        if(multipartFile != null && !multipartFile.isEmpty()){
-            if(productoExistente.getImagen() != null){
+        if (multipartFile != null && !multipartFile.isEmpty()) {
+            if (productoExistente.getImagen() != null) {
                 imagenService.deleteImage(productoExistente.getImagen());
             }
 
             Imagen nuevaImagen = imagenService.uploadImage(multipartFile);
             productoExistente.setImagen(nuevaImagen);
         }
-    
+
         // Guardamos el producto actualizado
         Producto productoActualizado = productoRepository.save(productoExistente);
         return productoMapper.toDTO(productoActualizado);
     }
-    
+
     @Override
     public void eliminarProducto(Long idProducto) {
         productoRepository.findById(idProducto)
@@ -160,6 +171,41 @@ public class ProductoServiceImpl implements ProductoService {
         Imagen nuevaImagen = imagenService.uploadImage(file);
         producto.setImagen(nuevaImagen);
         return productoRepository.save(producto);
+    }
+
+    @Override
+    public ProductoDTO obtenerProductoPorImagenCodigoBarras(String imageUrl) throws IOException {
+        // Leer el código de barras desde la imagen
+        String codigoBarras = barcodeService.leerCodigoBarrasDesdeImagen(imageUrl);
+
+        // Buscar el producto por el código de barras
+        Optional<Producto> productoOpt = productoRepository.findByCodigoBarras(codigoBarras);
+        if (!productoOpt.isPresent()) {
+            throw new ResourceNotFoundException("Producto con código de barras " + codigoBarras + " no encontrado");
+        }
+
+        // Devolver los datos del producto
+        return productoMapper.toDTO(productoOpt.get());
+    }
+
+    @Override
+    public ProductoDTO aumentarStockPorImagenCodigoBarras(String imageUrl) throws IOException {
+        // Leer el código de barras desde la imagen
+        String codigoBarras = barcodeService.leerCodigoBarrasDesdeImagen(imageUrl);
+
+        // Buscar el producto por el código de barras
+        Optional<Producto> productoOpt = productoRepository.findByCodigoBarras(codigoBarras);
+        if (!productoOpt.isPresent()) {
+            throw new ResourceNotFoundException("Producto con código de barras " + codigoBarras + " no encontrado");
+        }
+
+        // Incrementar el stock del producto
+        Producto producto = productoOpt.get();
+        producto.setCantidad(producto.getCantidad() + 1);
+
+        // Guardar el producto actualizado
+        Producto productoActualizado = productoRepository.save(producto);
+        return productoMapper.toDTO(productoActualizado);
     }
 
 }

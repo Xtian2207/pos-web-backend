@@ -44,6 +44,9 @@ public class Producto {
     @JoinColumn(name = "imagen_id",referencedColumnName = "id")
     private Imagen imagen;
 
+    @Column(name = "codigo_barras")
+    private String codigoBarras;
+
     @Column(name = "codigo_barras_url")
     private String codigoBarrasUrl;
 

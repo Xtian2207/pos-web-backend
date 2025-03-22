@@ -12,23 +12,29 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface ProductoService {
 
-    ProductoDTO registrarProducto(Long categoriaId, ProductoDTO productoDTO,MultipartFile multipartFile) throws IOException;
+        ProductoDTO registrarProducto(Long categoriaId, ProductoDTO productoDTO, MultipartFile multipartFile)
+                        throws IOException;
 
-    List<ProductoDTO> listarProductos();
+        List<ProductoDTO> listarProductos();
 
-    Optional<ProductoDTO> buscarPorNombre(String nombre);
+        Optional<ProductoDTO> buscarPorNombre(String nombre);
 
-    Optional<ProductoDTO> buscarPorId(Long idProducto);
+        Optional<ProductoDTO> buscarPorId(Long idProducto);
 
-    ProductoDTO actualizarProducto(Long idProducto, ProductoDTO productoActualizaDto,MultipartFile multipartFile) throws IOException;
+        ProductoDTO actualizarProducto(Long idProducto, ProductoDTO productoActualizaDto, MultipartFile multipartFile)
+                        throws IOException;
 
-    Producto actualizarImagenProducto(MultipartFile file, Producto producto) throws IOException;
+        Producto actualizarImagenProducto(MultipartFile file, Producto producto) throws IOException;
 
-    void eliminarProducto(Long idProducto);
+        void eliminarProducto(Long idProducto);
 
-    ProductoDTO cambiarEstadoProducto(Long idProducto, EstadoProducto nuevoEstadoProducto);
+        ProductoDTO cambiarEstadoProducto(Long idProducto, EstadoProducto nuevoEstadoProducto);
 
-    List<ProductoDTO> obtenerProductosPorEstado(EstadoProducto estadoProducto);
+        List<ProductoDTO> obtenerProductosPorEstado(EstadoProducto estadoProducto);
 
-    List<ProductoDTO> obtenerProductosPorCategoria(Long categoriaId);
+        List<ProductoDTO> obtenerProductosPorCategoria(Long categoriaId);
+
+        ProductoDTO obtenerProductoPorImagenCodigoBarras(String imageUrl) throws IOException;
+
+        ProductoDTO aumentarStockPorImagenCodigoBarras(String imageUrl) throws IOException;
 }

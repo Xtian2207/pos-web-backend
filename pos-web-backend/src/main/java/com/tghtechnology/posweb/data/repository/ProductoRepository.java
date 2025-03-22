@@ -22,4 +22,8 @@ public interface ProductoRepository extends JpaRepository<Producto, Long> {
     //Consultar productos por categoría
     List<Producto> findByCategoriaIdCategoria(Long categoriaId);
 
+    Optional<Producto> findByCodigoBarrasUrl(String codigoBarrasUrl);
+
+    Optional<Producto> findByCodigoBarras(String codigoBarras);
+
 }

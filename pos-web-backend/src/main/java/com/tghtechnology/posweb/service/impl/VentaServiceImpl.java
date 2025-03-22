@@ -326,4 +326,23 @@ public class VentaServiceImpl implements VentaService {
                 .collect(Collectors.toList());
         return ventasDTO;
     }
+
+    @Override
+    public List<VentaDTO> obtenerVentasPorAnio(int anio) {
+        // Obtenemos el primer día del año
+        Calendar calendarInicio = Calendar.getInstance();
+        calendarInicio.set(anio, Calendar.JANUARY, 1, 0, 0, 0);
+        Date fechaInicio = calendarInicio.getTime();
+
+        // Obtenemos el última día del año
+        Calendar calendarFin = Calendar.getInstance();
+        calendarFin.set(anio, Calendar.DECEMBER, 31, 23, 59, 59);
+        Date fechaFin = calendarFin.getTime();
+
+        List<Venta> ventas = ventaRepository.findVentasByFechaVentaBetween(fechaInicio, fechaFin);
+
+        return ventas.stream()
+                .map(venta -> ventaMapper.toDTO(venta))
+                .collect(Collectors.toList());
+    }
 }

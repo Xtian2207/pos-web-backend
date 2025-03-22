@@ -171,9 +171,9 @@ public class ProductoController {
                                                                              // URL
                 byte[] pdfBytes = barcodeService.generateBarcodePdf(barcodeText, copies);
 
-                HttpHeaders headers = new HttpHeaders(); //Crea un objeto para configurar las cabeceras HTTP
-                headers.setContentType(MediaType.APPLICATION_PDF); //Indica que la respuesta es un PDF
-                //Indica que el PDF debe descargarse con el nombre codigo_barras.pdf.
+                HttpHeaders headers = new HttpHeaders(); // Crea un objeto para configurar las cabeceras HTTP
+                headers.setContentType(MediaType.APPLICATION_PDF); // Indica que la respuesta es un PDF
+                // Indica que el PDF debe descargarse con el nombre codigo_barras.pdf.
                 headers.setContentDispositionFormData("attachment", "codigo_barras.pdf");
                 // Configura la política de caché para evitar problemas con navegadores
                 headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
@@ -186,6 +186,30 @@ public class ProductoController {
             }
         } catch (IOException | DocumentException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    @GetMapping("/obtener-producto-imagen")
+    public ResponseEntity<?> obtenerProductoPorImagenCodigoBarras(@RequestParam String imageUrl) {
+        try {
+            ProductoDTO producto = productoService.obtenerProductoPorImagenCodigoBarras(imageUrl);
+            return ResponseEntity.ok(producto);
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error al procesar la imagen: " + e.getMessage());
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/aumentar-stock-imagen")
+    public ResponseEntity<?> aumentarStockPorImagenCodigoBarras(@RequestParam String imageUrl) {
+        try {
+            ProductoDTO productoActualizado = productoService.aumentarStockPorImagenCodigoBarras(imageUrl);
+            return ResponseEntity.ok(productoActualizado);
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error al procesar la imagen: " + e.getMessage());
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 }

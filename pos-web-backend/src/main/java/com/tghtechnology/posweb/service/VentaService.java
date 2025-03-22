@@ -22,5 +22,7 @@ public interface VentaService {
 
     List<VentaDTO> obtenerVentasPorFecha(Date fechaInicio, Date fechaFin);
 
+    List<VentaDTO> obtenerVentasPorAnio(int anio);
+
 
 }
