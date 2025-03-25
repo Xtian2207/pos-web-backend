@@ -1,6 +1,7 @@
 package com.tghtechnology.posweb.service;
 
 import com.tghtechnology.posweb.data.dto.VentaDTO;
+import com.tghtechnology.posweb.exceptions.ResourceNotFoundException;
 
 import java.util.Date;
 import java.util.List;
@@ -24,5 +25,5 @@ public interface VentaService {
 
     List<VentaDTO> obtenerVentasPorAnio(int anio);
 
-
+    VentaDTO agregarProductoPorCodigoBarras(VentaDTO ventaDTO, String codigoBarras) throws ResourceNotFoundException;
 }

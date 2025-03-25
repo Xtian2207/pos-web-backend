@@ -37,4 +37,6 @@ public interface ProductoService {
         ProductoDTO obtenerProductoPorImagenCodigoBarras(String imageUrl) throws IOException;
 
         ProductoDTO aumentarStockPorImagenCodigoBarras(String imageUrl) throws IOException;
+
+        ProductoDTO buscarPorCodigoDeBarras(String codigoBarras);
 }

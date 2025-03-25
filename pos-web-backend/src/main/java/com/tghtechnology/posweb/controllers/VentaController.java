@@ -1,8 +1,11 @@
 package com.tghtechnology.posweb.controllers;
 
 import com.tghtechnology.posweb.data.dto.VentaDTO;
+import com.tghtechnology.posweb.exceptions.ResourceNotFoundException;
 import com.tghtechnology.posweb.service.ExcelReportService;
 import com.tghtechnology.posweb.service.VentaService;
+
+import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
@@ -11,7 +14,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -30,15 +33,10 @@ public class VentaController {
     @Autowired
     private ExcelReportService excelReportService;
 
-    @Autowired
-    private SimpMessagingTemplate messagingTemplate;
-
     @PostMapping("/registrar")
     public ResponseEntity<VentaDTO> registrarVenta(@RequestBody VentaDTO ventaDTO) {
         try {
             VentaDTO ventaRegistrada = ventaService.registrarVenta(ventaDTO);
-            messagingTemplate.convertAndSend("/topic/ventas",
-                    "Nueva venta registrada: " + ventaRegistrada.getIdVenta());
             return new ResponseEntity<>(ventaRegistrada, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
@@ -76,6 +74,23 @@ public class VentaController {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PostMapping("/agregar-por-codigo")
+    public ResponseEntity<?> agregarProductoPorCodigoBarras(@Valid @RequestBody VentaDTO ventaDTO,
+            @RequestParam String codigoBarras, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.badRequest().body("Error en los datos de entrada");
+        }
+
+        try {
+            VentaDTO ventaActualizada = ventaService.agregarProductoPorCodigoBarras(ventaDTO, codigoBarras);
+            return ResponseEntity.ok(ventaActualizada);
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 

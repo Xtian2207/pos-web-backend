@@ -17,10 +17,12 @@ import com.tghtechnology.posweb.data.repository.DetalleVentaRepository;
 import com.tghtechnology.posweb.data.repository.ProductoRepository;
 import com.tghtechnology.posweb.data.repository.UsuarioRepository;
 import com.tghtechnology.posweb.data.repository.VentaRepository;
+import com.tghtechnology.posweb.exceptions.ResourceNotFoundException;
 import com.tghtechnology.posweb.service.VentaService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -345,4 +347,106 @@ public class VentaServiceImpl implements VentaService {
                 .map(venta -> ventaMapper.toDTO(venta))
                 .collect(Collectors.toList());
     }
+
+    @Override
+    @Transactional
+    public VentaDTO agregarProductoPorCodigoBarras(VentaDTO ventaDTO, String codigoBarras)
+            throws ResourceNotFoundException {
+        Producto producto = productoRepository.findByCodigoBarras(codigoBarras)
+                .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado"));
+
+        Venta venta;
+        if (ventaDTO.getIdVenta() == null) {
+            if (ventaDTO.getIdUsuario() == null) {
+                throw new IllegalArgumentException("El ID de usuario es requerido");
+            }
+            if (ventaDTO.getMetodoPago() == null) {
+                throw new IllegalArgumentException("Método de pago es requerido");
+            }
+            if (ventaDTO.getTipoDeVenta() == null) {
+                throw new IllegalArgumentException("Tipo de venta es requerido");
+            }
+
+            venta = new Venta();
+
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(new Date());
+            calendar.set(Calendar.HOUR_OF_DAY, 0);
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
+            venta.setFechaVenta(calendar.getTime());
+
+            venta.setHoraVenta(LocalTime.now().withNano(0));
+
+            venta.setDetalles(new ArrayList<>());
+
+            Usuario usuario = usuarioRepository.findById(ventaDTO.getIdUsuario())
+                    .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+            venta.setUsuario(usuario);
+
+            try {
+                venta.setMetodoPago(MetodoPago.valueOf(ventaDTO.getMetodoPago().toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Método de pago inválido: " + ventaDTO.getMetodoPago());
+            }
+
+            try {
+                venta.setTipoDeVenta(TipoVenta.valueOf(ventaDTO.getTipoDeVenta().toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Tipo de venta inválido: " + ventaDTO.getTipoDeVenta());
+            }
+
+            if (ventaDTO.getCliente() != null) {
+                Cliente cliente = clienteRepository.findById(ventaDTO.getCliente().getIdCliente())
+                        .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado"));
+                venta.setCliente(cliente);
+            }
+        } else {
+            venta = ventaRepository.findById(ventaDTO.getIdVenta())
+                    .orElseThrow(() -> new ResourceNotFoundException("Venta no encontrada"));
+        }
+
+        agregarProductoAVenta(venta, producto, 1);
+
+        producto.setCantidad(producto.getCantidad() - 1);
+        productoRepository.save(producto);
+
+        venta.setTotal(calcularTotalVenta(venta));
+
+        Venta ventaGuardada = ventaRepository.save(venta);
+        VentaDTO resultado = ventaMapper.toDTO(ventaGuardada);
+
+        if (ventaGuardada.getCliente() != null) {
+            resultado.setNombreCliente(ventaGuardada.getCliente().getNombre());
+        }
+
+        return resultado;
+    }
+
+    private void agregarProductoAVenta(Venta venta, Producto producto, int cantidad) {
+        venta.getDetalles().stream()
+                .filter(d -> d.getProducto().getIdProducto().equals(producto.getIdProducto()))
+                .findFirst()
+                .ifPresentOrElse(
+                        detalle -> {
+                            detalle.setCantidad(detalle.getCantidad() + cantidad);
+                            detalle.setSubtotal(detalle.getCantidad() * producto.getPrecio());
+                        },
+                        () -> {
+                            DetalleVenta nuevoDetalle = new DetalleVenta();
+                            nuevoDetalle.setProducto(producto);
+                            nuevoDetalle.setCantidad(cantidad);
+                            nuevoDetalle.setSubtotal(cantidad * producto.getPrecio());
+                            nuevoDetalle.setVenta(venta);
+                            venta.getDetalles().add(nuevoDetalle);
+                        });
+    }
+
+    private double calcularTotalVenta(Venta venta) {
+        return venta.getDetalles().stream()
+                .mapToDouble(DetalleVenta::getSubtotal)
+                .sum();
+    }
+
 }

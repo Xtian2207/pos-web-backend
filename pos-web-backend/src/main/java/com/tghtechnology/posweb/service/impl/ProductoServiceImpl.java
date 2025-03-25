@@ -13,7 +13,9 @@ import com.tghtechnology.posweb.exceptions.ResourceNotFoundException;
 import com.tghtechnology.posweb.service.BarcodeService;
 import com.tghtechnology.posweb.service.ImagenService;
 import com.tghtechnology.posweb.service.ProductoService;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -204,6 +206,18 @@ public class ProductoServiceImpl implements ProductoService {
         producto.setCantidad(producto.getCantidad() + 1);
 
         // Guardar el producto actualizado
+        Producto productoActualizado = productoRepository.save(producto);
+        return productoMapper.toDTO(productoActualizado);
+    }
+
+    @Override
+    public ProductoDTO buscarPorCodigoDeBarras(String codigoBarras) {
+        Producto producto = productoRepository.findByCodigoBarras(codigoBarras)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Producto con código de barras " + codigoBarras + " no encontrado"));
+
+        producto.setCantidad(producto.getCantidad() + 1);
+
         Producto productoActualizado = productoRepository.save(producto);
         return productoMapper.toDTO(productoActualizado);
     }

@@ -212,4 +212,14 @@ public class ProductoController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
+
+    @GetMapping("/buscar/codigo-barras/{codigoBarras}")
+public ResponseEntity<?> buscarPorCodigoBarras(@PathVariable String codigoBarras) {
+    try {
+        ProductoDTO producto = productoService.buscarPorCodigoDeBarras(codigoBarras);
+        return ResponseEntity.ok(producto);
+    } catch (ResourceNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+}
 }
