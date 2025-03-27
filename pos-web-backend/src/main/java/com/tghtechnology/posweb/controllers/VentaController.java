@@ -34,7 +34,7 @@ public class VentaController {
     private ExcelReportService excelReportService;
 
     @PostMapping("/registrar")
-    public ResponseEntity<VentaDTO> registrarVenta(@RequestBody VentaDTO ventaDTO) {
+    public ResponseEntity<VentaDTO> registrarVenta(@RequestBody VentaDTO ventaDTO) throws Exception{
         try {
             VentaDTO ventaRegistrada = ventaService.registrarVenta(ventaDTO);
             return new ResponseEntity<>(ventaRegistrada, HttpStatus.CREATED);

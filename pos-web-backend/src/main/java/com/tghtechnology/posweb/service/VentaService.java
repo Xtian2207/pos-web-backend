@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface VentaService {
 
-    VentaDTO registrarVenta(VentaDTO ventaDTO);
+    VentaDTO registrarVenta(VentaDTO ventaDTO) throws Exception;
 
     List<VentaDTO> listarVentas();
 

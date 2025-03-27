@@ -3,6 +3,7 @@ package com.tghtechnology.posweb.service.impl;
 import com.tghtechnology.posweb.data.dto.ClienteDTO;
 import com.tghtechnology.posweb.data.dto.DetalleVentaDTO;
 import com.tghtechnology.posweb.data.dto.VentaDTO;
+import com.tghtechnology.posweb.data.dto.VentaNotificationDTO;
 import com.tghtechnology.posweb.data.entities.Cliente;
 import com.tghtechnology.posweb.data.entities.DetalleVenta;
 import com.tghtechnology.posweb.data.entities.MetodoPago;
@@ -18,12 +19,14 @@ import com.tghtechnology.posweb.data.repository.ProductoRepository;
 import com.tghtechnology.posweb.data.repository.UsuarioRepository;
 import com.tghtechnology.posweb.data.repository.VentaRepository;
 import com.tghtechnology.posweb.exceptions.ResourceNotFoundException;
+import com.tghtechnology.posweb.service.VentaNotificationService;
 import com.tghtechnology.posweb.service.VentaService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -55,6 +58,9 @@ public class VentaServiceImpl implements VentaService {
 
     @Autowired
     private VentaMapper ventaMapper;
+
+    @Autowired
+    private VentaNotificationService ventaNotificationService;
 
     @Override
     public VentaDTO registrarVenta(VentaDTO ventaDTO) {
@@ -175,12 +181,32 @@ public class VentaServiceImpl implements VentaService {
 
         // Guardar la venta y los detalles
         Venta ventaGuardada = ventaRepository.save(venta);
+
         for (DetalleVenta detalle : venta.getDetalles()) {
             detalleVentaRepository.save(detalle);
         }
 
-        // Convertir la entidad a DTO y devolverla
-        return ventaMapper.toDTO(ventaGuardada);
+        try {
+            // Formatear los datos correctamente
+            String totalFormateado = String.format("S/ %.2f", ventaGuardada.getTotal());
+            String fechaFormateada = new SimpleDateFormat("dd/MM/yyyy").format(ventaGuardada.getFechaVenta());
+
+            // Crear objeto DTO con la información estructurada
+            VentaNotificationDTO notificacion = new VentaNotificationDTO(
+                    "Nueva venta registrada",
+                    ventaGuardada.getIdVenta(),
+                    totalFormateado,
+                    ventaGuardada.getUsuario().getNombre(),
+                    fechaFormateada);
+
+            ventaNotificationService.enviarNotificacionVenta(notificacion);
+
+            return ventaMapper.toDTO(ventaGuardada);
+        } catch (Exception exception) {
+            System.out.println(exception.getMessage());
+            throw exception;
+        }
+
     }
 
     @Override
