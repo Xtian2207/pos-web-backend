@@ -28,7 +28,7 @@ public class VentaDTO {
 
     private String tipoDeVenta;
 
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    //@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private ClienteDTO cliente;
     
     private String nombreCliente; 

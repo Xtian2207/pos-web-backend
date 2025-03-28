@@ -23,5 +23,9 @@ public class NotificationStorageService {
         unreadNotifications.clear();
         return currentNotifications;
     }
+    public List<VentaNotificationDTO> getNotifications() {
+        return new ArrayList<>(unreadNotifications); // No borra las notificaciones
+    }
+    
 
 }

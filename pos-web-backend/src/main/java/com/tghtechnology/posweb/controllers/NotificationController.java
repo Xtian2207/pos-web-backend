@@ -23,6 +23,7 @@ public class NotificationController {
 
     @GetMapping
     public ResponseEntity<List<VentaNotificationDTO>> getNewNotifications() {
-        return ResponseEntity.ok(storageService.getAndClearNotifications());
+        return ResponseEntity.ok(storageService.getNotifications());
+
     }
 }
