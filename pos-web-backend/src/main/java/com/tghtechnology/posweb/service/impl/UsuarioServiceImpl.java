@@ -63,7 +63,7 @@ public class UsuarioServiceImpl implements UsuarioService {
             throw new IllegalArgumentException("El usuario no puede ser nulo");
         }
         // Rol por defecto
-        String rolDefect = "USER";
+        String rolDefect = "EMPLEADO";
 
         Set<RolDto> roles = userCtr.getRoles();
     

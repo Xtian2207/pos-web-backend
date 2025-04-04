@@ -36,9 +36,9 @@ public class DataInitializer implements ApplicationRunner {
             rolService.ingresarRol(adminRole);
         }
 
-        if (!rolService.existeRolName("USER")) {
+        if (!rolService.existeRolName("EMPLEADO")) {
             RolDto userRole = new RolDto();
-            userRole.setNombreRol("USER");
+            userRole.setNombreRol("EMPLEADO");
             rolService.ingresarRol(userRole);
         }
     }
