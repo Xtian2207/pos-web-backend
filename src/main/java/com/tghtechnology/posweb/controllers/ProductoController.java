@@ -22,7 +22,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = {"http://localhost:5173",
+"https://punto-de-venta.netlify.app"})
 @RestController
 @RequestMapping("/api/productos")
 public class ProductoController {

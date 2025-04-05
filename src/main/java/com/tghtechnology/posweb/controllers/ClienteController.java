@@ -22,7 +22,8 @@ import com.tghtechnology.posweb.service.ClienteService;
 
 import jakarta.validation.Valid;
 
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = {"http://localhost:5173",
+"https://punto-de-venta.netlify.app"})
 @RestController
 @RequestMapping("/api/clientes")
 public class ClienteController {
