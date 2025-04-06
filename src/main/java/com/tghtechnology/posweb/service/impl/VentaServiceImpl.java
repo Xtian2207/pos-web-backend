@@ -180,11 +180,11 @@ public class VentaServiceImpl implements VentaService {
         }
 
         // Guardar la venta y los detalles
-        Venta ventaGuardada = ventaRepository.save(venta);
+        //Venta ventaGuardada = ventaRepository.save(venta);
 
-        for (DetalleVenta detalle : venta.getDetalles()) {
-            detalleVentaRepository.save(detalle);
-        }
+        //for (DetalleVenta detalle : venta.getDetalles()) {
+           // detalleVentaRepository.save(detalle);
+        //}
 
         try {
             // Formatear los datos correctamente

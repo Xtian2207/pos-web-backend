@@ -51,6 +51,11 @@ public class VentaMapper {
             venta.setCliente(cliente);
         }
 
+        if (venta.getDetalles() != null) {
+            venta.getDetalles().forEach(det -> det.setVenta(venta));
+        }
+        
+
         return venta;
     }
 
