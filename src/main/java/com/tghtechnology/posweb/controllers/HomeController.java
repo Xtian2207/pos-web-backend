@@ -15,4 +15,9 @@ public class HomeController {
     public String home() {
         return "Bienvenido a la página principal!";
     }
+    @GetMapping("/ping")
+public ResponseEntity<String> ping() {
+    return ResponseEntity.ok("pong");
+}
+
 }
