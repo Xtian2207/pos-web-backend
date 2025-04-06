@@ -8,11 +8,11 @@ import org.springframework.kafka.config.TopicBuilder;
 @Configuration
 public class KafkaConfig {
 
-    @Bean
+  /*   @Bean
     public NewTopic ventasTopic() {
         return TopicBuilder.name("ventas-registradas")
                 .partitions(3)
                 .replicas(1)
                 .build();
-    }
+    }*/
 }
